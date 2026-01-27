@@ -1,15 +1,17 @@
-"""Integrations with external services and CRMs."""
+"""External integrations module for TD Lead Engine."""
 
-from .hubspot import HubSpotIntegration
-from .zapier import ZapierIntegration
-from .twilio_sms import TwilioSMSIntegration
-from .slack import SlackIntegration
-from .email import EmailIntegration
+from .zillow import ZillowIntegration
+from .realtor import RealtorIntegration
+from .google_ads import GoogleAdsIntegration
+from .facebook_ads import FacebookAdsIntegration
+from .calendar_sync import CalendarSync
+from .crm_import import CRMImporter
 
 __all__ = [
-    "HubSpotIntegration",
-    "ZapierIntegration",
-    "TwilioSMSIntegration",
-    "SlackIntegration",
-    "EmailIntegration",
+    'ZillowIntegration',
+    'RealtorIntegration',
+    'GoogleAdsIntegration',
+    'FacebookAdsIntegration',
+    'CalendarSync',
+    'CRMImporter'
 ]
