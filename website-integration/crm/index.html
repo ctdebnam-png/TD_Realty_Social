@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TD Realty Ohio - CRM Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        [x-cloak] { display: none !important; }
+        .sidebar-item:hover { background-color: rgba(255,255,255,0.1); }
+        .sidebar-item.active { background-color: rgba(255,255,255,0.2); border-left: 3px solid #10b981; }
+    </style>
+</head>
+<body class="bg-gray-100" x-data="dashboard()" x-init="init()">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-900 text-white flex flex-col">
+            <div class="p-4 border-b border-gray-700">
+                <h1 class="text-xl font-bold">TD Realty Ohio</h1>
+                <p class="text-gray-400 text-sm">Lead Management CRM</p>
+            </div>
+            <nav class="flex-1 p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" @click.prevent="currentView = 'dashboard'"
+                           :class="{'active': currentView === 'dashboard'}"
+                           class="sidebar-item flex items-center p-3 rounded-lg">
+                            <i class="fas fa-chart-line w-6"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" @click.prevent="currentView = 'leads'"
+                           :class="{'active': currentView === 'leads'}"
+                           class="sidebar-item flex items-center p-3 rounded-lg">
+                            <i class="fas fa-users w-6"></i>
+                            <span>Leads</span>
+                            <span x-show="stats.leads?.hot > 0" class="ml-auto bg-red-500 text-xs px-2 py-1 rounded-full" x-text="stats.leads?.hot"></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" @click.prevent="currentView = 'tasks'"
+                           :class="{'active': currentView === 'tasks'}"
+                           class="sidebar-item flex items-center p-3 rounded-lg">
+                            <i class="fas fa-tasks w-6"></i>
+                            <span>Tasks</span>
+                            <span x-show="stats.tasks?.overdue > 0" class="ml-auto bg-orange-500 text-xs px-2 py-1 rounded-full" x-text="stats.tasks?.overdue"></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" @click.prevent="currentView = 'transactions'"
+                           :class="{'active': currentView === 'transactions'}"
+                           class="sidebar-item flex items-center p-3 rounded-lg">
+                            <i class="fas fa-home w-6"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" @click.prevent="currentView = 'market'"
+                           :class="{'active': currentView === 'market'}"
+                           class="sidebar-item flex items-center p-3 rounded-lg">
+                            <i class="fas fa-chart-bar w-6"></i>
+                            <span>Market Data</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="p-4 border-t border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <span class="text-sm font-bold">TD</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">Admin</p>
+                        <p class="text-xs text-gray-400">3 Agents</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b p-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-semibold text-gray-800" x-text="viewTitles[currentView]"></h2>
+                    <div class="flex items-center space-x-4">
+                        <button @click="showAddLead = true" class="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600">
+                            <i class="fas fa-plus mr-2"></i>Add Lead
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <div x-show="currentView === 'dashboard'" x-cloak class="p-6">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Total Leads</p>
+                                <p class="text-3xl font-bold text-gray-800" x-text="stats.leads?.total || 0"></p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-users text-blue-500"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <span class="text-red-500 font-medium" x-text="(stats.leads?.hot || 0) + ' hot'"></span>
+                            <span class="text-gray-400 mx-2">|</span>
+                            <span class="text-orange-500" x-text="(stats.leads?.warm || 0) + ' warm'"></span>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Pending Tasks</p>
+                                <p class="text-3xl font-bold text-gray-800" x-text="stats.tasks?.total || 0"></p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-tasks text-orange-500"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-sm">
+                            <span class="text-red-500" x-text="(stats.tasks?.overdue || 0) + ' overdue'"></span>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Active Transactions</p>
+                                <p class="text-3xl font-bold text-gray-800" x-text="stats.transactions?.total || 0"></p>
+                            </div>
+                            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-home text-emerald-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Commission MTD</p>
+                                <p class="text-3xl font-bold text-emerald-600" x-text="formatCurrency(stats.transactions?.commission || 0)"></p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-green-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Hot Leads -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold mb-4">Hot Leads</h3>
+                        <div class="space-y-3">
+                            <template x-for="lead in hotLeads" :key="lead.id">
+                                <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                    <div>
+                                        <p class="font-medium" x-text="lead.first_name + ' ' + lead.last_name"></p>
+                                        <p class="text-sm text-gray-500" x-text="lead.source + ' - ' + lead.lead_type"></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">Score: <span x-text="lead.score"></span></span>
+                                    </div>
+                                </div>
+                            </template>
+                            <p x-show="hotLeads.length === 0" class="text-gray-400 text-center py-4">No hot leads yet</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold mb-4">Today's Tasks</h3>
+                        <div class="space-y-3">
+                            <template x-for="task in todayTasks" :key="task.id">
+                                <div class="flex items-center p-3 border rounded-lg">
+                                    <input type="checkbox" class="mr-3" @change="completeTask(task.id)">
+                                    <div class="flex-1">
+                                        <p class="font-medium" x-text="task.title"></p>
+                                        <p class="text-sm text-gray-500" x-text="task.lead_first_name ? 'Lead: ' + task.lead_first_name + ' ' + task.lead_last_name : ''"></p>
+                                    </div>
+                                    <span :class="{'bg-red-100 text-red-700': task.priority === 'high', 'bg-yellow-100 text-yellow-700': task.priority === 'medium', 'bg-gray-100 text-gray-700': task.priority === 'low'}"
+                                          class="text-xs px-2 py-1 rounded" x-text="task.priority"></span>
+                                </div>
+                            </template>
+                            <p x-show="todayTasks.length === 0" class="text-gray-400 text-center py-4">No tasks for today</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leads View -->
+            <div x-show="currentView === 'leads'" x-cloak class="p-6">
+                <div class="bg-white rounded-xl shadow-sm">
+                    <div class="p-4 border-b flex items-center justify-between">
+                        <div class="flex space-x-2">
+                            <button @click="filterLeads('all')" :class="{'bg-gray-800 text-white': leadFilter === 'all'}" class="px-4 py-2 rounded-lg text-sm">All</button>
+                            <button @click="filterLeads('hot')" :class="{'bg-red-500 text-white': leadFilter === 'hot'}" class="px-4 py-2 rounded-lg text-sm">Hot</button>
+                            <button @click="filterLeads('warm')" :class="{'bg-orange-500 text-white': leadFilter === 'warm'}" class="px-4 py-2 rounded-lg text-sm">Warm</button>
+                            <button @click="filterLeads('new')" :class="{'bg-blue-500 text-white': leadFilter === 'new'}" class="px-4 py-2 rounded-lg text-sm">New</button>
+                        </div>
+                        <input type="text" placeholder="Search leads..." class="border rounded-lg px-4 py-2 w-64" x-model="leadSearch">
+                    </div>
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="text-left p-4 font-medium text-gray-600">Name</th>
+                                <th class="text-left p-4 font-medium text-gray-600">Contact</th>
+                                <th class="text-left p-4 font-medium text-gray-600">Source</th>
+                                <th class="text-left p-4 font-medium text-gray-600">Type</th>
+                                <th class="text-left p-4 font-medium text-gray-600">Score</th>
+                                <th class="text-left p-4 font-medium text-gray-600">Status</th>
+                                <th class="text-left p-4 font-medium text-gray-600">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="lead in filteredLeads" :key="lead.id">
+                                <tr class="border-t hover:bg-gray-50">
+                                    <td class="p-4">
+                                        <p class="font-medium" x-text="lead.first_name + ' ' + lead.last_name"></p>
+                                    </td>
+                                    <td class="p-4">
+                                        <p class="text-sm" x-text="lead.email"></p>
+                                        <p class="text-sm text-gray-500" x-text="lead.phone"></p>
+                                    </td>
+                                    <td class="p-4" x-text="lead.source"></td>
+                                    <td class="p-4" x-text="lead.lead_type"></td>
+                                    <td class="p-4">
+                                        <span :class="getTierClass(lead.tier)" class="px-2 py-1 rounded-full text-xs font-medium" x-text="lead.score"></span>
+                                    </td>
+                                    <td class="p-4">
+                                        <select class="border rounded px-2 py-1 text-sm" x-model="lead.status" @change="updateLeadStatus(lead)">
+                                            <option value="new">New</option>
+                                            <option value="contacted">Contacted</option>
+                                            <option value="qualified">Qualified</option>
+                                            <option value="showing">Showing</option>
+                                            <option value="offer">Offer</option>
+                                            <option value="contract">Contract</option>
+                                            <option value="closed">Closed</option>
+                                            <option value="lost">Lost</option>
+                                        </select>
+                                    </td>
+                                    <td class="p-4">
+                                        <button class="text-blue-500 hover:text-blue-700 mr-2" @click="viewLead(lead)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-emerald-500 hover:text-emerald-700" @click="addTaskForLead(lead)">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tasks View -->
+            <div x-show="currentView === 'tasks'" x-cloak class="p-6">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="space-y-4">
+                        <template x-for="task in tasks" :key="task.id">
+                            <div class="flex items-center p-4 border rounded-lg">
+                                <input type="checkbox" class="mr-4 w-5 h-5" :checked="task.status === 'completed'" @change="completeTask(task.id)">
+                                <div class="flex-1">
+                                    <p class="font-medium" x-text="task.title"></p>
+                                    <p class="text-sm text-gray-500" x-text="task.description"></p>
+                                    <p class="text-xs text-gray-400 mt-1">Due: <span x-text="formatDate(task.due_date)"></span></p>
+                                </div>
+                                <span :class="{'bg-red-100 text-red-700': task.priority === 'high', 'bg-yellow-100 text-yellow-700': task.priority === 'medium'}"
+                                      class="px-3 py-1 rounded text-sm" x-text="task.priority"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Data View -->
+            <div x-show="currentView === 'market'" x-cloak class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <p class="text-gray-500 text-sm">Median Price</p>
+                        <p class="text-2xl font-bold text-gray-800" x-text="formatCurrency(market.medianPrice)"></p>
+                        <p class="text-sm text-emerald-500 mt-1">+<span x-text="market.priceChangeYoY"></span>% YoY</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <p class="text-gray-500 text-sm">Avg Days on Market</p>
+                        <p class="text-2xl font-bold text-gray-800" x-text="market.avgDaysOnMarket"></p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <p class="text-gray-500 text-sm">Inventory (Months)</p>
+                        <p class="text-2xl font-bold text-gray-800" x-text="market.inventoryMonths"></p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <p class="text-gray-500 text-sm">Active Listings</p>
+                        <p class="text-2xl font-bold text-gray-800" x-text="market.totalListings?.toLocaleString()"></p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-semibold mb-4">Central Ohio Neighborhoods</h3>
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="text-left p-3 font-medium text-gray-600">Neighborhood</th>
+                                <th class="text-left p-3 font-medium text-gray-600">City</th>
+                                <th class="text-left p-3 font-medium text-gray-600">Median Price</th>
+                                <th class="text-left p-3 font-medium text-gray-600">Avg DOM</th>
+                                <th class="text-left p-3 font-medium text-gray-600">School Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="n in neighborhoods" :key="n.id">
+                                <tr class="border-t">
+                                    <td class="p-3 font-medium" x-text="n.name"></td>
+                                    <td class="p-3 text-gray-600" x-text="n.city"></td>
+                                    <td class="p-3" x-text="formatCurrency(n.median_price)"></td>
+                                    <td class="p-3" x-text="n.avg_dom + ' days'"></td>
+                                    <td class="p-3">
+                                        <span class="text-yellow-500"><span x-text="n.school_rating"></span>/10</span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Transactions View -->
+            <div x-show="currentView === 'transactions'" x-cloak class="p-6">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Transactions</h3>
+                        <button @click="showAddTransaction = true" class="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm">
+                            <i class="fas fa-plus mr-2"></i>Add Transaction
+                        </button>
+                    </div>
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="text-left p-3 font-medium text-gray-600">Property</th>
+                                <th class="text-left p-3 font-medium text-gray-600">Type</th>
+                                <th class="text-left p-3 font-medium text-gray-600">Price</th>
+                                <th class="text-left p-3 font-medium text-gray-600">Commission</th>
+                                <th class="text-left p-3 font-medium text-gray-600">Status</th>
+                                <th class="text-left p-3 font-medium text-gray-600">Closing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="t in transactions" :key="t.id">
+                                <tr class="border-t">
+                                    <td class="p-3">
+                                        <p class="font-medium" x-text="t.property_address"></p>
+                                        <p class="text-sm text-gray-500" x-text="t.city + ', ' + t.state + ' ' + t.zip"></p>
+                                    </td>
+                                    <td class="p-3" x-text="t.transaction_type"></td>
+                                    <td class="p-3" x-text="formatCurrency(t.sale_price)"></td>
+                                    <td class="p-3 text-emerald-600" x-text="formatCurrency(t.commission_amount)"></td>
+                                    <td class="p-3">
+                                        <span :class="{'bg-yellow-100 text-yellow-700': t.status === 'pending', 'bg-emerald-100 text-emerald-700': t.status === 'closed'}"
+                                              class="px-2 py-1 rounded text-sm" x-text="t.status"></span>
+                                    </td>
+                                    <td class="p-3 text-gray-600" x-text="formatDate(t.closing_date)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Lead Modal -->
+    <div x-show="showAddLead" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-lg" @click.away="showAddLead = false">
+            <h3 class="text-xl font-semibold mb-4">Add New Lead</h3>
+            <form @submit.prevent="addLead()">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <input type="text" x-model="newLead.first_name" required class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <input type="text" x-model="newLead.last_name" required class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" x-model="newLead.email" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                        <input type="tel" x-model="newLead.phone" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                        <select x-model="newLead.source" class="w-full border rounded-lg px-3 py-2">
+                            <option value="website">Website</option>
+                            <option value="zillow">Zillow</option>
+                            <option value="realtor">Realtor.com</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="google_ads">Google Ads</option>
+                            <option value="referral">Referral</option>
+                            <option value="open_house">Open House</option>
+                            <option value="sign_call">Sign Call</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Lead Type</label>
+                        <select x-model="newLead.lead_type" class="w-full border rounded-lg px-3 py-2">
+                            <option value="buyer">Buyer</option>
+                            <option value="seller">Seller</option>
+                            <option value="both">Both</option>
+                            <option value="investor">Investor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Timeline</label>
+                        <select x-model="newLead.timeline" class="w-full border rounded-lg px-3 py-2">
+                            <option value="">Unknown</option>
+                            <option value="immediately">Immediately</option>
+                            <option value="within_30_days">Within 30 Days</option>
+                            <option value="within_90_days">Within 90 Days</option>
+                            <option value="within_6_months">Within 6 Months</option>
+                            <option value="just_looking">Just Looking</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="flex items-center mt-6">
+                            <input type="checkbox" x-model="newLead.preapproved" class="mr-2">
+                            <span class="text-sm">Pre-approved</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <textarea x-model="newLead.notes" rows="3" class="w-full border rounded-lg px-3 py-2"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" @click="showAddLead = false" class="px-4 py-2 border rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-500 text-white rounded-lg">Add Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function dashboard() {
+            return {
+                currentView: 'dashboard',
+                viewTitles: {
+                    dashboard: 'Dashboard',
+                    leads: 'Lead Management',
+                    tasks: 'Tasks',
+                    transactions: 'Transactions',
+                    market: 'Market Intelligence'
+                },
+                // API URL - Update this after deploying your Worker
+                // Option 1: Use your Workers subdomain (e.g., 'https://td-realty-crm.YOUR-SUBDOMAIN.workers.dev/api')
+                // Option 2: Use a route on your domain (requires Worker route setup in Cloudflare)
+                API_URL: 'https://td-realty-crm.tdrealtyohio.workers.dev/api',
+
+                stats: {},
+                leads: [],
+                tasks: [],
+                transactions: [],
+                market: {},
+                neighborhoods: [],
+                hotLeads: [],
+                todayTasks: [],
+
+                leadFilter: 'all',
+                leadSearch: '',
+
+                showAddLead: false,
+                showAddTransaction: false,
+                newLead: this.resetLead(),
+
+                async init() {
+                    await this.loadDashboard();
+                    await this.loadLeads();
+                    await this.loadTasks();
+                    await this.loadTransactions();
+                    await this.loadMarketData();
+                },
+
+                resetLead() {
+                    return {
+                        first_name: '',
+                        last_name: '',
+                        email: '',
+                        phone: '',
+                        source: 'website',
+                        lead_type: 'buyer',
+                        timeline: '',
+                        preapproved: false,
+                        notes: ''
+                    };
+                },
+
+                async loadDashboard() {
+                    try {
+                        const res = await fetch(this.API_URL + '/analytics/dashboard');
+                        this.stats = await res.json();
+                    } catch (e) {
+                        console.error('Failed to load dashboard:', e);
+                        this.stats = { leads: {}, tasks: {}, transactions: {} };
+                    }
+                },
+
+                async loadLeads() {
+                    try {
+                        const res = await fetch(this.API_URL + '/leads');
+                        const data = await res.json();
+                        this.leads = data.leads || [];
+                        this.hotLeads = this.leads.filter(l => l.tier === 'hot').slice(0, 5);
+                    } catch (e) {
+                        console.error('Failed to load leads:', e);
+                        this.leads = [];
+                    }
+                },
+
+                async loadTasks() {
+                    try {
+                        const res = await fetch(this.API_URL + '/tasks');
+                        const data = await res.json();
+                        this.tasks = data.tasks || [];
+                        this.todayTasks = this.tasks.slice(0, 5);
+                    } catch (e) {
+                        console.error('Failed to load tasks:', e);
+                        this.tasks = [];
+                    }
+                },
+
+                async loadTransactions() {
+                    try {
+                        const res = await fetch(this.API_URL + '/transactions');
+                        const data = await res.json();
+                        this.transactions = data.transactions || [];
+                    } catch (e) {
+                        console.error('Failed to load transactions:', e);
+                        this.transactions = [];
+                    }
+                },
+
+                async loadMarketData() {
+                    try {
+                        const [summaryRes, neighborhoodsRes] = await Promise.all([
+                            fetch(this.API_URL + '/market/summary'),
+                            fetch(this.API_URL + '/market/neighborhoods')
+                        ]);
+                        const summary = await summaryRes.json();
+                        this.market = summary.centralOhio || {};
+                        const neighborhoodsData = await neighborhoodsRes.json();
+                        this.neighborhoods = neighborhoodsData.neighborhoods || [];
+                    } catch (e) {
+                        console.error('Failed to load market data:', e);
+                        this.market = { medianPrice: 285000, avgDaysOnMarket: 21, inventoryMonths: 1.8, priceChangeYoY: 5.2 };
+                    }
+                },
+
+                async addLead() {
+                    try {
+                        const res = await fetch(this.API_URL + '/leads', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.newLead)
+                        });
+                        if (res.ok) {
+                            this.showAddLead = false;
+                            this.newLead = this.resetLead();
+                            await this.loadLeads();
+                            await this.loadDashboard();
+                        }
+                    } catch (e) {
+                        console.error('Failed to add lead:', e);
+                    }
+                },
+
+                async updateLeadStatus(lead) {
+                    try {
+                        await fetch(this.API_URL + '/leads/' + lead.id, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: lead.status })
+                        });
+                    } catch (e) {
+                        console.error('Failed to update lead:', e);
+                    }
+                },
+
+                async completeTask(taskId) {
+                    try {
+                        await fetch(this.API_URL + '/tasks/' + taskId, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: 'completed' })
+                        });
+                        await this.loadTasks();
+                        await this.loadDashboard();
+                    } catch (e) {
+                        console.error('Failed to complete task:', e);
+                    }
+                },
+
+                filterLeads(filter) {
+                    this.leadFilter = filter;
+                },
+
+                get filteredLeads() {
+                    let filtered = this.leads;
+                    if (this.leadFilter === 'hot') filtered = filtered.filter(l => l.tier === 'hot');
+                    else if (this.leadFilter === 'warm') filtered = filtered.filter(l => l.tier === 'warm');
+                    else if (this.leadFilter === 'new') filtered = filtered.filter(l => l.status === 'new');
+
+                    if (this.leadSearch) {
+                        const search = this.leadSearch.toLowerCase();
+                        filtered = filtered.filter(l =>
+                            (l.first_name + ' ' + l.last_name).toLowerCase().includes(search) ||
+                            (l.email || '').toLowerCase().includes(search)
+                        );
+                    }
+                    return filtered;
+                },
+
+                getTierClass(tier) {
+                    const classes = {
+                        hot: 'bg-red-100 text-red-700',
+                        warm: 'bg-orange-100 text-orange-700',
+                        lukewarm: 'bg-yellow-100 text-yellow-700',
+                        cold: 'bg-blue-100 text-blue-700'
+                    };
+                    return classes[tier] || 'bg-gray-100 text-gray-700';
+                },
+
+                formatCurrency(amount) {
+                    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount || 0);
+                },
+
+                formatDate(date) {
+                    if (!date) return '-';
+                    return new Date(date).toLocaleDateString();
+                },
+
+                viewLead(lead) {
+                    alert('Lead details: ' + lead.first_name + ' ' + lead.last_name + '\nScore: ' + lead.score + '\nNotes: ' + (lead.notes || 'None'));
+                },
+
+                addTaskForLead(lead) {
+                    alert('Add task for: ' + lead.first_name + ' ' + lead.last_name);
+                }
+            };
+        }
+    </script>
+</body>
+</html>

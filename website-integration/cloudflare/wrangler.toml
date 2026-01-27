@@ -1,0 +1,23 @@
+name = "td-realty-crm"
+main = "workers/api.js"
+compatibility_date = "2024-01-01"
+
+# D1 Database binding - UPDATE THE database_id AFTER CREATING YOUR DATABASE
+[[d1_databases]]
+binding = "DB"
+database_name = "td-realty-db"
+database_id = "YOUR_DATABASE_ID_HERE"  # Replace after running: wrangler d1 create td-realty-db
+
+# Scheduled tasks for automated data collection (daily at 6 AM EST)
+[triggers]
+crons = ["0 11 * * *"]  # 11 UTC = 6 AM EST
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+COMPANY_NAME = "TD Realty Ohio"
+
+# Development settings
+[dev]
+port = 8787
+local_protocol = "http"
