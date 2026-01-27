@@ -1,7 +1,22 @@
-"""AI-powered features for lead analysis and insights."""
+"""AI-powered lead intelligence and recommendations."""
 
-from .insights import LeadInsightsEngine
-from .scripts import ScriptGenerator
-from .enrichment import AIEnrichment
+from .recommendations import LeadRecommendationEngine, Recommendation, RecommendationType
+from .property_matcher import PropertyMatcher, MatchScore
+from .follow_up import FollowUpAdvisor, FollowUpAction, FollowUpPriority
+from .predictions import LeadPredictionEngine, PredictionResult
+from .chatbot import LeadChatbot, ChatResponse
 
-__all__ = ["LeadInsightsEngine", "ScriptGenerator", "AIEnrichment"]
+__all__ = [
+    'LeadRecommendationEngine',
+    'Recommendation',
+    'RecommendationType',
+    'PropertyMatcher',
+    'MatchScore',
+    'FollowUpAdvisor',
+    'FollowUpAction',
+    'FollowUpPriority',
+    'LeadPredictionEngine',
+    'PredictionResult',
+    'LeadChatbot',
+    'ChatResponse',
+]
