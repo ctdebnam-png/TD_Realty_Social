@@ -1,0 +1,153 @@
+{% extends "client/base.html" %}
+
+{% block title %}Create Saved Search{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <a href="{{ url_for('client.saved_searches') }}" class="text-muted text-decoration-none">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Saved Searches
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h4 class="mb-1">Create Saved Search</h4>
+                    <p class="text-muted mb-0">Get notified when new properties match your criteria</p>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Search Name -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Search Name</label>
+                            <input type="text" class="form-control" name="name"
+                                   placeholder="e.g., Downtown Columbus Condos" required>
+                        </div>
+
+                        <!-- Locations -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Locations</label>
+                            <input type="text" class="form-control" name="locations"
+                                   placeholder="Enter cities or zip codes, separated by commas">
+                            <div class="form-text">Example: Columbus, Dublin, 43085</div>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Price Range</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" name="min_price"
+                                               placeholder="Min" value="0">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" name="max_price"
+                                               placeholder="Max" value="1000000">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Beds & Baths -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Bedrooms & Bathrooms</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <select class="form-select" name="min_beds">
+                                        <option value="0">Any Beds</option>
+                                        <option value="1">1+ Beds</option>
+                                        <option value="2">2+ Beds</option>
+                                        <option value="3">3+ Beds</option>
+                                        <option value="4">4+ Beds</option>
+                                        <option value="5">5+ Beds</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-select" name="min_baths">
+                                        <option value="0">Any Baths</option>
+                                        <option value="1">1+ Baths</option>
+                                        <option value="1.5">1.5+ Baths</option>
+                                        <option value="2">2+ Baths</option>
+                                        <option value="2.5">2.5+ Baths</option>
+                                        <option value="3">3+ Baths</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Property Types -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Property Types</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="property_types"
+                                               value="single_family" id="typeSingle" checked>
+                                        <label class="form-check-label" for="typeSingle">Single Family</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="property_types"
+                                               value="condo" id="typeCondo">
+                                        <label class="form-check-label" for="typeCondo">Condo</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="property_types"
+                                               value="townhouse" id="typeTownhouse">
+                                        <label class="form-check-label" for="typeTownhouse">Townhouse</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="property_types"
+                                               value="multi_family" id="typeMulti">
+                                        <label class="form-check-label" for="typeMulti">Multi-Family</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="property_types"
+                                               value="land" id="typeLand">
+                                        <label class="form-check-label" for="typeLand">Land</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alert Frequency -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Alert Frequency</label>
+                            <select class="form-select" name="alert_frequency">
+                                <option value="instant">Instant - As soon as new listings match</option>
+                                <option value="daily" selected>Daily - Once per day digest</option>
+                                <option value="weekly">Weekly - Once per week digest</option>
+                            </select>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('client.saved_searches') }}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i> Save Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

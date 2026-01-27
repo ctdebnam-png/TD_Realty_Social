@@ -1,0 +1,71 @@
+{% extends "client/base.html" %}
+
+{% block title %}My Listings{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Listings</h2>
+    </div>
+
+    {% if listings %}
+    <div class="row g-4">
+        {% for listing in listings %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <img src="{{ listing.photo_url or 'https://via.placeholder.com/300x200?text=No+Photo' }}"
+                                 class="img-fluid rounded" alt="Listing"
+                                 style="height: 150px; width: 100%; object-fit: cover;">
+                        </div>
+                        <div class="col-md-5">
+                            <h5 class="mb-1">{{ listing.address }}</h5>
+                            <p class="text-muted mb-2">{{ listing.city }}, {{ listing.state }} {{ listing.zip }}</p>
+                            <div class="mb-2">
+                                <span class="badge bg-{{ 'success' if listing.status == 'active' else 'warning' if listing.status == 'pending' else 'secondary' }}">
+                                    {{ listing.status|title }}
+                                </span>
+                                <span class="text-muted ms-2">Listed {{ listing.list_date.strftime('%b %d, %Y') if listing.list_date else 'N/A' }}</span>
+                            </div>
+                            <p class="mb-0 text-muted">
+                                {{ listing.beds }} beds | {{ listing.baths }} baths | {{ '{:,}'.format(listing.sqft or 0) }} sqft
+                            </p>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="h4 mb-1">${{ '{:,.0f}'.format(listing.price or 0) }}</div>
+                            <div class="text-muted small">List Price</div>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <div class="mb-2">
+                                <span class="me-3"><i class="bi bi-eye me-1"></i>{{ listing.view_count or 0 }} views</span>
+                            </div>
+                            <div class="mb-3">
+                                <span class="me-3"><i class="bi bi-calendar me-1"></i>{{ listing.showing_count or 0 }} showings</span>
+                                <span><i class="bi bi-cash me-1"></i>{{ listing.offer_count or 0 }} offers</span>
+                            </div>
+                            <a href="{{ url_for('client.listing_detail', listing_id=listing.id) }}" class="btn btn-primary btn-sm">
+                                View Details <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-4">No Listings Yet</h4>
+            <p class="text-muted mb-4">Contact your agent to start the listing process.</p>
+            <a href="{{ url_for('client.messages') }}" class="btn btn-primary">
+                <i class="bi bi-chat me-1"></i> Contact Agent
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "client/base.html" %}
+
+{% block title %}Documents{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">Documents</h2>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Documents Requiring Signature -->
+            <div class="card mb-4 border-warning">
+                <div class="card-header bg-warning bg-opacity-10 border-0 pt-4">
+                    <h5 class="mb-0 text-warning">
+                        <i class="bi bi-pen me-2"></i>Requires Your Signature
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if documents and documents|selectattr('needs_signature')|list %}
+                    {% for doc in documents if doc.needs_signature %}
+                    <div class="d-flex align-items-center py-3 border-bottom">
+                        <div class="me-3">
+                            <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">{{ doc.name }}</h6>
+                            <small class="text-muted">Sent {{ doc.sent_at.strftime('%b %d, %Y') }}</small>
+                        </div>
+                        <a href="#" class="btn btn-warning">
+                            <i class="bi bi-pen me-1"></i> Sign Now
+                        </a>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center py-3 mb-0">No documents pending signature</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- All Documents -->
+            <div class="card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0"><i class="bi bi-folder me-2"></i>All Documents</h5>
+                </div>
+                <div class="card-body">
+                    {% if documents %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in documents %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-file-earmark-{{ 'pdf text-danger' if doc.type == 'pdf' else 'text-primary' }} me-2"></i>
+                                            {{ doc.name }}
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark">{{ doc.category or 'General' }}</span></td>
+                                    <td>{{ doc.created_at.strftime('%b %d, %Y') if doc.created_at else '-' }}</td>
+                                    <td>
+                                        {% if doc.signed %}
+                                        <span class="badge bg-success">Signed</span>
+                                        {% elif doc.needs_signature %}
+                                        <span class="badge bg-warning">Needs Signature</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">View Only</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> View
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-folder text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-4">No Documents Yet</h4>
+                        <p class="text-muted mb-0">Documents related to your transaction will appear here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Document Categories -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h6 class="mb-0">Categories</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-light text-start d-flex justify-content-between">
+                            <span><i class="bi bi-file-earmark-text me-2"></i>Contracts</span>
+                            <span class="badge bg-primary">0</span>
+                        </button>
+                        <button class="btn btn-light text-start d-flex justify-content-between">
+                            <span><i class="bi bi-clipboard-check me-2"></i>Disclosures</span>
+                            <span class="badge bg-primary">0</span>
+                        </button>
+                        <button class="btn btn-light text-start d-flex justify-content-between">
+                            <span><i class="bi bi-search me-2"></i>Inspections</span>
+                            <span class="badge bg-primary">0</span>
+                        </button>
+                        <button class="btn btn-light text-start d-flex justify-content-between">
+                            <span><i class="bi bi-bank me-2"></i>Financial</span>
+                            <span class="badge bg-primary">0</span>
+                        </button>
+                        <button class="btn btn-light text-start d-flex justify-content-between">
+                            <span><i class="bi bi-key me-2"></i>Closing</span>
+                            <span class="badge bg-primary">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload -->
+            <div class="card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h6 class="mb-0">Upload Document</h6>
+                </div>
+                <div class="card-body">
+                    <div class="border-2 border-dashed rounded p-4 text-center" style="border-style: dashed;">
+                        <i class="bi bi-cloud-upload text-muted" style="font-size: 2rem;"></i>
+                        <p class="text-muted mt-2 mb-2">Drag & drop files here</p>
+                        <p class="text-muted small mb-3">or</p>
+                        <button class="btn btn-outline-primary btn-sm">Browse Files</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

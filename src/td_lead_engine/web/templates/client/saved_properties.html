@@ -1,0 +1,228 @@
+{% extends "client/base.html" %}
+
+{% block title %}Saved Properties{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Saved Properties</h2>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-secondary active" data-view="grid">
+                <i class="bi bi-grid"></i>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" data-view="list">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" href="#all" data-bs-toggle="tab">
+                All <span class="badge bg-secondary ms-1">{{ properties|length }}</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#favorites" data-bs-toggle="tab">
+                Favorites <span class="badge bg-danger ms-1">{{ favorites|length }}</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#toured" data-bs-toggle="tab">
+                Toured <span class="badge bg-success ms-1">{{ toured|length }}</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- All Properties -->
+        <div class="tab-pane fade show active" id="all">
+            {% if properties %}
+            <div class="row g-4">
+                {% for prop in properties %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card property-card h-100">
+                        <div class="position-relative">
+                            <img src="{{ prop.photo_url or 'https://via.placeholder.com/400x250?text=No+Photo' }}"
+                                 class="card-img-top" alt="Property">
+                            <div class="position-absolute top-0 end-0 p-2">
+                                <button class="btn btn-light btn-sm rounded-circle" onclick="toggleFavorite('{{ prop.property_id }}')">
+                                    <i class="bi bi-heart{% if prop.is_favorite %}-fill text-danger{% endif %}"></i>
+                                </button>
+                            </div>
+                            {% if prop.is_new %}
+                            <div class="position-absolute top-0 start-0 p-2">
+                                <span class="badge bg-success">New</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="mb-0">${{ '{:,.0f}'.format(prop.price or 0) }}</h5>
+                                <div class="rating-stars">
+                                    {% for i in range(5) %}
+                                    <i class="bi bi-star{% if i < (prop.rating or 0) %}-fill{% endif %}"
+                                       style="cursor: pointer;" onclick="rateProperty('{{ prop.property_id }}', {{ i + 1 }})"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="text-muted mb-2">
+                                {{ prop.beds }} bd | {{ prop.baths }} ba | {{ '{:,}'.format(prop.sqft or 0) }} sqft
+                            </p>
+                            <p class="mb-0">{{ prop.address }}</p>
+                            <p class="text-muted mb-0">{{ prop.city }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <div class="d-flex gap-2">
+                                <form method="POST" action="{{ url_for('client.request_showing', property_id=prop.property_id) }}" class="flex-grow-1">
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                                        <i class="bi bi-calendar me-1"></i> Schedule Tour
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('client.unsave_property', property_id=prop.property_id) }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-heart text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-4">No Saved Properties Yet</h4>
+                    <p class="text-muted mb-0">Properties you save will appear here.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Favorites -->
+        <div class="tab-pane fade" id="favorites">
+            {% if favorites %}
+            <div class="row g-4">
+                {% for prop in favorites %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card property-card h-100">
+                        <div class="position-relative">
+                            <img src="{{ prop.photo_url or 'https://via.placeholder.com/400x250?text=No+Photo' }}"
+                                 class="card-img-top" alt="Property">
+                            <div class="position-absolute top-0 end-0 p-2">
+                                <button class="btn btn-light btn-sm rounded-circle">
+                                    <i class="bi bi-heart-fill text-danger"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="mb-2">${{ '{:,.0f}'.format(prop.price or 0) }}</h5>
+                            <p class="text-muted mb-2">
+                                {{ prop.beds }} bd | {{ prop.baths }} ba | {{ '{:,}'.format(prop.sqft or 0) }} sqft
+                            </p>
+                            <p class="mb-0">{{ prop.address }}</p>
+                            <p class="text-muted mb-0">{{ prop.city }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <form method="POST" action="{{ url_for('client.request_showing', property_id=prop.property_id) }}">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">
+                                    <i class="bi bi-calendar me-1"></i> Schedule Tour
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-heart text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-4">No Favorites Yet</h4>
+                    <p class="text-muted mb-0">Mark properties as favorites to see them here.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Toured -->
+        <div class="tab-pane fade" id="toured">
+            {% if toured %}
+            <div class="row g-4">
+                {% for prop in toured %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card property-card h-100">
+                        <div class="position-relative">
+                            <img src="{{ prop.photo_url or 'https://via.placeholder.com/400x250?text=No+Photo' }}"
+                                 class="card-img-top" alt="Property">
+                            <div class="position-absolute top-0 start-0 p-2">
+                                <span class="badge bg-success">Toured</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="mb-2">${{ '{:,.0f}'.format(prop.price or 0) }}</h5>
+                            <p class="text-muted mb-2">
+                                {{ prop.beds }} bd | {{ prop.baths }} ba | {{ '{:,}'.format(prop.sqft or 0) }} sqft
+                            </p>
+                            <p class="mb-0">{{ prop.address }}</p>
+                            <p class="text-muted mb-0">{{ prop.city }}</p>
+                            {% if prop.tour_date %}
+                            <p class="text-muted small mt-2 mb-0">
+                                <i class="bi bi-calendar-check me-1"></i> Toured {{ prop.tour_date.strftime('%b %d, %Y') }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <div class="rating-stars text-center">
+                                <small class="text-muted me-2">Your Rating:</small>
+                                {% for i in range(5) %}
+                                <i class="bi bi-star{% if i < (prop.rating or 0) %}-fill{% endif %}"
+                                   style="cursor: pointer; font-size: 1.25rem;" onclick="rateProperty('{{ prop.property_id }}', {{ i + 1 }})"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-house-check text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-4">No Toured Properties Yet</h4>
+                    <p class="text-muted mb-0">Properties you've toured will appear here.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleFavorite(propertyId) {
+    // Toggle favorite via AJAX
+    console.log('Toggle favorite:', propertyId);
+}
+
+function rateProperty(propertyId, rating) {
+    fetch(`/portal/properties/${propertyId}/rate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `rating=${rating}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}

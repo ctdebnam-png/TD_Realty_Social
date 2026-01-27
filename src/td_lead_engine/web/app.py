@@ -13,6 +13,9 @@ from ..transactions.tracker import TransactionTracker
 from ..scheduling.showing_scheduler import ShowingScheduler
 from ..reviews.collector import ReviewCollector
 
+# Import blueprints
+from .client_portal import client_bp
+
 
 def create_app(config=None):
     """Create and configure the Flask application."""
@@ -34,6 +37,9 @@ def create_app(config=None):
     transactions = TransactionTracker()
     showings = ShowingScheduler()
     reviews = ReviewCollector()
+
+    # Register blueprints
+    app.register_blueprint(client_bp)
 
     # Auth decorator
     def login_required(f):

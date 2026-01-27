@@ -1,0 +1,204 @@
+{% extends "client/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <h1 class="mb-2">Welcome back, {{ session.get('client_name', 'Home Buyer') }}!</h1>
+        <p class="mb-0 opacity-75">Your home search journey continues</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ summary.saved_count or 0 }}</div>
+                <div class="stat-label">Saved Properties</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ summary.search_count or 0 }}</div>
+                <div class="stat-label">Saved Searches</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ summary.tours_scheduled or 0 }}</div>
+                <div class="stat-label">Tours Scheduled</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ summary.new_matches or 0 }}</div>
+                <div class="stat-label">New Matches</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- New Matches -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-lightning text-warning me-2"></i>New Matches</h5>
+                    <a href="{{ url_for('client.saved_searches') }}" class="text-primary text-decoration-none">
+                        Manage Searches <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if summary.new_properties %}
+                    <div class="row g-3">
+                        {% for prop in summary.new_properties[:4] %}
+                        <div class="col-md-6">
+                            <div class="card property-card h-100">
+                                <img src="{{ prop.photo_url or 'https://via.placeholder.com/400x200?text=No+Photo' }}"
+                                     class="card-img-top" alt="Property">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="mb-0">${{ '{:,.0f}'.format(prop.price or 0) }}</h5>
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-heart"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-muted mb-2">
+                                        {{ prop.beds }} bd | {{ prop.baths }} ba | {{ '{:,}'.format(prop.sqft or 0) }} sqft
+                                    </p>
+                                    <p class="mb-0">{{ prop.address }}</p>
+                                    <p class="text-muted mb-0">{{ prop.city }}</p>
+                                </div>
+                                <div class="card-footer bg-white border-0">
+                                    <button class="btn btn-primary btn-sm w-100">
+                                        <i class="bi bi-calendar me-1"></i> Schedule Tour
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-house-heart text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-3 mb-0">No new matches yet. Create a saved search to get notified!</p>
+                        <a href="{{ url_for('client.new_saved_search') }}" class="btn btn-primary mt-3">
+                            <i class="bi bi-plus-lg me-1"></i> Create Search
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Upcoming Tours -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0"><i class="bi bi-calendar-event text-primary me-2"></i>Upcoming Tours</h5>
+                </div>
+                <div class="card-body">
+                    {% if summary.upcoming_tours %}
+                    {% for tour in summary.upcoming_tours %}
+                    <div class="d-flex align-items-center py-3 border-bottom">
+                        <div class="me-3">
+                            <div class="bg-primary bg-opacity-10 rounded p-3 text-center" style="min-width: 60px;">
+                                <div class="text-primary fw-bold">{{ tour.date.strftime('%b') }}</div>
+                                <div class="h4 mb-0 text-primary">{{ tour.date.strftime('%d') }}</div>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ tour.property_address }}</h6>
+                            <p class="text-muted mb-0">{{ tour.time }} with {{ tour.agent_name or 'Your Agent' }}</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No upcoming tours scheduled</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Your Agent -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">Your Agent</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                             style="width: 80px; height: 80px; font-size: 2rem;">
+                            TD
+                        </div>
+                    </div>
+                    <h6 class="mb-1">TD Realty Agent</h6>
+                    <p class="text-muted mb-3">Your dedicated buyer's agent</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('client.messages') }}" class="btn btn-primary">
+                            <i class="bi bi-chat me-1"></i> Send Message
+                        </a>
+                        <a href="tel:6145550123" class="btn btn-outline-primary">
+                            <i class="bi bi-telephone me-1"></i> Call
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('client.new_saved_search') }}" class="btn btn-outline-primary text-start">
+                            <i class="bi bi-plus-circle me-2"></i> Create Saved Search
+                        </a>
+                        <a href="{{ url_for('client.saved_properties') }}" class="btn btn-outline-primary text-start">
+                            <i class="bi bi-heart me-2"></i> View Saved Properties
+                        </a>
+                        <a href="{{ url_for('client.documents') }}" class="btn btn-outline-primary text-start">
+                            <i class="bi bi-file-earmark me-2"></i> View Documents
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if summary.recent_activity %}
+                    {% for activity in summary.recent_activity[:5] %}
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="me-3">
+                            <i class="bi bi-{{ activity.icon or 'circle' }} text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0 small">{{ activity.description }}</p>
+                            <small class="text-muted">{{ activity.time_ago }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center mb-0">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends "client/base.html" %}
+
+{% block title %}Seller Dashboard{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <h1 class="mb-2">Welcome back, {{ session.get('client_name', 'Home Seller') }}!</h1>
+        <p class="mb-0 opacity-75">Track your listing activity and offers</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ summary.active_listings or 0 }}</div>
+                <div class="stat-label">Active Listings</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ summary.total_views or 0 }}</div>
+                <div class="stat-label">Total Views</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">{{ summary.pending_showings or 0 }}</div>
+                <div class="stat-label">Pending Showings</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value text-success">{{ summary.active_offers or 0 }}</div>
+                <div class="stat-label">Active Offers</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Active Listings -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-building text-primary me-2"></i>Your Listings</h5>
+                    <a href="{{ url_for('client.my_listings') }}" class="text-primary text-decoration-none">
+                        View All <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if summary.listings %}
+                    {% for listing in summary.listings[:3] %}
+                    <div class="border rounded p-3 mb-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <img src="{{ listing.photo_url or 'https://via.placeholder.com/200x150?text=No+Photo' }}"
+                                     class="img-fluid rounded" alt="Listing" style="height: 100px; width: 100%; object-fit: cover;">
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-1">{{ listing.address }}</h6>
+                                <p class="text-muted mb-1">{{ listing.city }}, {{ listing.state }}</p>
+                                <span class="badge bg-{{ 'success' if listing.status == 'active' else 'warning' }}">
+                                    {{ listing.status|title }}
+                                </span>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <div class="h5 mb-1">${{ '{:,.0f}'.format(listing.price or 0) }}</div>
+                                <div class="text-muted small">
+                                    {{ listing.showing_count or 0 }} showings |
+                                    {{ listing.offer_count or 0 }} offers
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-house text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-3 mb-0">No active listings</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Pending Offers -->
+            {% if summary.pending_offers %}
+            <div class="card mb-4 border-success">
+                <div class="card-header bg-success bg-opacity-10 border-0 pt-4">
+                    <h5 class="mb-0 text-success"><i class="bi bi-cash-stack me-2"></i>Pending Offers</h5>
+                </div>
+                <div class="card-body">
+                    {% for offer in summary.pending_offers %}
+                    <div class="border rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ offer.property_address }}</h6>
+                                <p class="text-muted mb-2">From: {{ offer.buyer_name }}</p>
+                                <div class="h4 text-success mb-0">${{ '{:,.0f}'.format(offer.amount or 0) }}</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="mb-2">
+                                    <span class="badge bg-warning">Expires {{ offer.expires_in }}</span>
+                                </div>
+                                <a href="{{ url_for('client.listing_offers', listing_id=offer.listing_id) }}"
+                                   class="btn btn-success btn-sm">
+                                    Review Offer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Upcoming Showings -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0"><i class="bi bi-calendar-event text-primary me-2"></i>Upcoming Showings</h5>
+                </div>
+                <div class="card-body">
+                    {% if summary.upcoming_showings %}
+                    {% for showing in summary.upcoming_showings %}
+                    <div class="d-flex align-items-center py-3 border-bottom">
+                        <div class="me-3">
+                            <div class="bg-primary bg-opacity-10 rounded p-3 text-center" style="min-width: 60px;">
+                                <div class="text-primary fw-bold">{{ showing.date.strftime('%b') }}</div>
+                                <div class="h4 mb-0 text-primary">{{ showing.date.strftime('%d') }}</div>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ showing.property_address }}</h6>
+                            <p class="text-muted mb-0">{{ showing.time }} - {{ showing.buyer_agent or 'Buyer Agent' }}</p>
+                        </div>
+                        <div>
+                            {% if showing.status == 'pending' %}
+                            <span class="badge bg-warning">Pending Confirmation</span>
+                            {% else %}
+                            <span class="badge bg-success">Confirmed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No upcoming showings scheduled</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Your Agent -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">Your Listing Agent</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                             style="width: 80px; height: 80px; font-size: 2rem;">
+                            TD
+                        </div>
+                    </div>
+                    <h6 class="mb-1">TD Realty Agent</h6>
+                    <p class="text-muted mb-3">Your dedicated listing agent</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('client.messages') }}" class="btn btn-primary">
+                            <i class="bi bi-chat me-1"></i> Send Message
+                        </a>
+                        <a href="tel:6145550123" class="btn btn-outline-primary">
+                            <i class="bi bi-telephone me-1"></i> Call
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">This Week's Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Profile Views</span>
+                        <span class="fw-bold">{{ summary.weekly_views or 0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Saved by Buyers</span>
+                        <span class="fw-bold">{{ summary.weekly_saves or 0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Showing Requests</span>
+                        <span class="fw-bold">{{ summary.weekly_showings or 0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Inquiries</span>
+                        <span class="fw-bold">{{ summary.weekly_inquiries or 0 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Showing Feedback -->
+            <div class="card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">Recent Feedback</h5>
+                </div>
+                <div class="card-body">
+                    {% if summary.recent_feedback %}
+                    {% for feedback in summary.recent_feedback[:3] %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">{{ feedback.date.strftime('%b %d') }}</small>
+                            <div class="rating-stars">
+                                {% for i in range(5) %}
+                                <i class="bi bi-star{% if i < feedback.rating %}-fill{% endif %}" style="font-size: 0.75rem;"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="mb-0 small">{{ feedback.comment }}</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center mb-0">No feedback yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
