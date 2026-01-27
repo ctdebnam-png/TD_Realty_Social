@@ -1,0 +1,73 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+venv
+.venv
+env
+ENV
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Testing
+.tox
+.coverage
+.pytest_cache
+htmlcov
+
+# Docker
+Dockerfile*
+docker-compose*
+.docker
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Development
+.env*
+!.env.example
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node modules (we copy built dashboard)
+node_modules
+
+# Database files (use mounted volumes)
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Temporary files
+*.tmp
+*.temp
+.cache

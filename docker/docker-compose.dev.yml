@@ -1,0 +1,49 @@
+# TD Lead Engine - Development Docker Compose
+# Lightweight setup for local development
+
+version: '3.8'
+
+services:
+  lead-engine:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: production
+    container_name: td-lead-engine-dev
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount source code for hot reloading
+      - ../src:/app/src:ro
+      - ../apps:/app/apps:ro
+      - dev-data:/app/data
+    environment:
+      - TD_ENGINE_ENV=development
+      - FLASK_DEBUG=1
+    command: ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000", "--reload"]
+    networks:
+      - dev-network
+
+  webhook-receiver:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: td-webhooks-dev
+    ports:
+      - "5001:5001"
+    volumes:
+      - ../src:/app/src:ro
+      - dev-data:/app/data
+    environment:
+      - TD_ENGINE_ENV=development
+    command: ["python", "-m", "td_lead_engine.automation.webhook_server", "--debug"]
+    networks:
+      - dev-network
+
+volumes:
+  dev-data:
+    name: td-dev-data
+
+networks:
+  dev-network:
+    name: td-dev-network
