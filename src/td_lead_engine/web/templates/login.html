@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="text-center mb-4">
+            <h1 style="font-size: 2.5rem; font-weight: 700; color: #2563eb;">
+                <i class="bi bi-house-heart"></i> TD Realty
+            </h1>
+            <p class="text-muted">Lead Engine Dashboard</p>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-4">Welcome back</h4>
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="you@example.com" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               placeholder="Your password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        Sign In
+                    </button>
+                </form>
+
+                <p class="text-center text-muted mb-0" style="font-size: 0.875rem;">
+                    Demo: Use any email/password to login
+                </p>
+            </div>
+        </div>
+
+        <p class="text-center text-muted mt-4" style="font-size: 0.875rem;">
+            TD Realty Lead Engine &copy; 2024
+        </p>
+    </div>
+</div>
+{% endblock %}

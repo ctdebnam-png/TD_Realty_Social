@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lead.name or 'Lead' }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{{ url_for('leads') }}" class="text-muted text-decoration-none mb-2 d-inline-block">
+            <i class="bi bi-arrow-left"></i> Back to Leads
+        </a>
+        <h1 class="mb-0">{{ lead.name or 'Unknown' }}</h1>
+    </div>
+    <div>
+        <button class="btn btn-outline-primary me-2">
+            <i class="bi bi-envelope"></i> Email
+        </button>
+        <button class="btn btn-outline-primary me-2">
+            <i class="bi bi-telephone"></i> Call
+        </button>
+        <button class="btn btn-primary">
+            <i class="bi bi-calendar-plus"></i> Schedule Showing
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Info -->
+    <div class="col-md-8">
+        <!-- Lead Card -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center border-end">
+                        <div class="score-badge mx-auto mb-2 {% if lead.score >= 80 %}score-hot{% elif lead.score >= 60 %}score-warm{% elif lead.score >= 40 %}score-cool{% else %}score-cold{% endif %}"
+                             style="width: 80px; height: 80px; font-size: 1.5rem;">
+                            {{ lead.score or 0 }}
+                        </div>
+                        <div class="text-muted">Lead Score</div>
+                        <span class="stage-badge stage-{{ lead.stage or 'new' }} mt-2">
+                            {{ (lead.stage or 'new')|title }}
+                        </span>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted" style="font-size: 0.75rem;">EMAIL</label>
+                                <div>
+                                    <a href="mailto:{{ lead.email }}">{{ lead.email or '-' }}</a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted" style="font-size: 0.75rem;">PHONE</label>
+                                <div>
+                                    <a href="tel:{{ lead.phone }}">{{ lead.phone or '-' }}</a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted" style="font-size: 0.75rem;">TYPE</label>
+                                <div>{{ (lead.lead_type or 'Buyer')|title }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted" style="font-size: 0.75rem;">SOURCE</label>
+                                <div>{{ (lead.source or 'Unknown')|title }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted" style="font-size: 0.75rem;">ADDED</label>
+                                <div>{{ lead.created_at[:10] if lead.created_at else '-' }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted" style="font-size: 0.75rem;">LAST ACTIVITY</label>
+                                <div>{{ lead.last_activity or 'None' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Score Breakdown -->
+        {% if lead.score_breakdown %}
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Score Breakdown</h6>
+            </div>
+            <div class="card-body">
+                {% for category, score in (lead.score_breakdown.breakdown or {}).items() %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ category|title|replace('_', ' ') }}</span>
+                        <span class="fw-semibold">{{ score }}</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar" style="width: {{ (score / 30 * 100)|int }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if lead.score_breakdown.signals %}
+                <hr>
+                <h6 class="mb-3">Signals Detected</h6>
+                <div>
+                    {% for signal in lead.score_breakdown.signals[:10] %}
+                    <span class="badge bg-light text-dark me-1 mb-1">{{ signal }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Notes -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="mb-0"><i class="bi bi-journal-text me-2"></i>Notes</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_lead', lead_id=lead.id) }}">
+                    <textarea class="form-control mb-3" name="notes" rows="4"
+                              placeholder="Add notes about this lead...">{{ lead.notes or '' }}</textarea>
+                    <button type="submit" class="btn btn-primary btn-sm">Save Notes</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Activity Timeline -->
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Activity</h6>
+            </div>
+            <div class="card-body">
+                {% for activity in activities %}
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-2">
+                            <i class="bi bi-{{ activity.icon or 'circle' }} text-primary"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div>{{ activity.description }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ activity.timestamp }}</div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">No activity recorded yet</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <!-- Stage Update -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="mb-0">Update Stage</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_lead', lead_id=lead.id) }}">
+                    <select class="form-select mb-3" name="stage">
+                        <option value="new" {{ 'selected' if lead.stage == 'new' }}>New</option>
+                        <option value="contacted" {{ 'selected' if lead.stage == 'contacted' }}>Contacted</option>
+                        <option value="qualified" {{ 'selected' if lead.stage == 'qualified' }}>Qualified</option>
+                        <option value="showing" {{ 'selected' if lead.stage == 'showing' }}>Showing</option>
+                        <option value="offer" {{ 'selected' if lead.stage == 'offer' }}>Offer</option>
+                        <option value="pending" {{ 'selected' if lead.stage == 'pending' }}>Pending</option>
+                        <option value="closed" {{ 'selected' if lead.stage == 'closed' }}>Closed</option>
+                        <option value="lost" {{ 'selected' if lead.stage == 'lost' }}>Lost</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary w-100">Update Stage</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="mb-0">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary text-start">
+                        <i class="bi bi-calendar-plus me-2"></i> Schedule Showing
+                    </button>
+                    <button class="btn btn-outline-primary text-start">
+                        <i class="bi bi-send me-2"></i> Send Property Alert
+                    </button>
+                    <button class="btn btn-outline-primary text-start">
+                        <i class="bi bi-file-earmark-plus me-2"></i> Create Transaction
+                    </button>
+                    <button class="btn btn-outline-primary text-start">
+                        <i class="bi bi-star me-2"></i> Request Review
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Criteria (if buyer) -->
+        {% if lead.lead_type == 'buyer' %}
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="mb-0">Search Criteria</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6 mb-2">
+                        <label class="text-muted" style="font-size: 0.7rem;">BUDGET</label>
+                        <div>{{ lead.budget or 'Not set' }}</div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <label class="text-muted" style="font-size: 0.7rem;">BEDS</label>
+                        <div>{{ lead.beds or 'Any' }}</div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <label class="text-muted" style="font-size: 0.7rem;">BATHS</label>
+                        <div>{{ lead.baths or 'Any' }}</div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <label class="text-muted" style="font-size: 0.7rem;">AREA</label>
+                        <div>{{ lead.preferred_area or 'Any' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

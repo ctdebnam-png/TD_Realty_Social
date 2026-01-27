@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Leads{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Leads</h1>
+    <a href="{{ url_for('add_lead') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add Lead
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="search"
+                       placeholder="Search name, email, phone..."
+                       value="{{ search or '' }}">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="stage">
+                    <option value="">All Stages</option>
+                    {% for stage in stages %}
+                    <option value="{{ stage }}" {{ 'selected' if current_stage == stage }}>{{ stage|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="source">
+                    <option value="">All Sources</option>
+                    {% for source in sources %}
+                    <option value="{{ source }}" {{ 'selected' if current_source == source }}>{{ source|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('leads') }}" class="btn btn-outline-secondary w-100">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Leads Table -->
+<div class="table-card">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th style="width: 70px;">Score</th>
+                <th>Lead</th>
+                <th>Contact</th>
+                <th>Source</th>
+                <th>Stage</th>
+                <th>Added</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lead in leads %}
+            <tr>
+                <td>
+                    <span class="score-badge {% if lead.score >= 80 %}score-hot{% elif lead.score >= 60 %}score-warm{% elif lead.score >= 40 %}score-cool{% else %}score-cold{% endif %}">
+                        {{ lead.score or 0 }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{{ url_for('lead_detail', lead_id=lead.id) }}" class="text-decoration-none">
+                        <strong class="text-dark">{{ lead.name or 'Unknown' }}</strong>
+                    </a>
+                    <div class="text-muted" style="font-size: 0.75rem;">
+                        {{ lead.lead_type or 'Buyer' }}
+                        {% if lead.score >= 80 %}
+                        <span class="badge bg-danger ms-1">HOT</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td>
+                    <div>{{ lead.email or '-' }}</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">{{ lead.phone or '-' }}</div>
+                </td>
+                <td>
+                    <span class="badge bg-secondary">{{ lead.source or 'Unknown' }}</span>
+                </td>
+                <td>
+                    <span class="stage-badge stage-{{ lead.stage or 'new' }}">
+                        {{ (lead.stage or 'new')|title }}
+                    </span>
+                </td>
+                <td>
+                    <span class="text-muted" style="font-size: 0.875rem;">
+                        {{ lead.created_at[:10] if lead.created_at else '-' }}
+                    </span>
+                </td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('lead_detail', lead_id=lead.id) }}">View Details</a></li>
+                            <li><a class="dropdown-item" href="#">Send Email</a></li>
+                            <li><a class="dropdown-item" href="#">Schedule Showing</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2 mb-0">No leads found</p>
+                    <a href="{{ url_for('add_lead') }}" class="btn btn-primary mt-3">Add Your First Lead</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-3 text-muted">
+    Showing {{ leads|length }} lead{% if leads|length != 1 %}s{% endif %}
+</div>
+{% endblock %}
