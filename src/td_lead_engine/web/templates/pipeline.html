@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Pipeline{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pipeline-board {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+    }
+
+    .pipeline-column {
+        min-width: 280px;
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 1rem;
+    }
+
+    .pipeline-column-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid;
+    }
+
+    .pipeline-column-header h6 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .pipeline-column-header .count {
+        background: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .pipeline-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .pipeline-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .pipeline-card .lead-name {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .pipeline-card .lead-contact {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
+
+    .pipeline-card .lead-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .col-new .pipeline-column-header { border-color: #3b82f6; }
+    .col-contacted .pipeline-column-header { border-color: #f59e0b; }
+    .col-qualified .pipeline-column-header { border-color: #10b981; }
+    .col-showing .pipeline-column-header { border-color: #6366f1; }
+    .col-offer .pipeline-column-header { border-color: #ec4899; }
+    .col-pending .pipeline-column-header { border-color: #f97316; }
+    .col-closed .pipeline-column-header { border-color: #22c55e; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Pipeline</h1>
+    <a href="{{ url_for('add_lead') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add Lead
+    </a>
+</div>
+
+<!-- Pipeline Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.total_in_pipeline or 0 }}</div>
+            <div class="stat-label">Total in Pipeline</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">${{ '{:,.0f}'.format(summary.total_value or 0) }}</div>
+            <div class="stat-label">Pipeline Value</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.avg_days_in_pipeline or 0 }}</div>
+            <div class="stat-label">Avg Days in Pipeline</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.conversion_rate or '0%' }}</div>
+            <div class="stat-label">Conversion Rate</div>
+        </div>
+    </div>
+</div>
+
+<!-- Pipeline Board -->
+<div class="pipeline-board">
+    <!-- New -->
+    <div class="pipeline-column col-new">
+        <div class="pipeline-column-header">
+            <h6>New</h6>
+            <span class="count">{{ leads_by_stage.new|length }}</span>
+        </div>
+        {% for lead in leads_by_stage.new %}
+        <div class="pipeline-card" onclick="window.location='{{ url_for('lead_detail', lead_id=lead.id) }}'">
+            <div class="lead-name">{{ lead.name or 'Unknown' }}</div>
+            <div class="lead-contact">{{ lead.email or lead.phone or '-' }}</div>
+            <div class="lead-footer">
+                <span class="badge bg-secondary">{{ lead.source or 'Unknown' }}</span>
+                <span class="score-badge {% if lead.score >= 80 %}score-hot{% elif lead.score >= 60 %}score-warm{% else %}score-cool{% endif %}"
+                      style="width: 30px; height: 30px; font-size: 0.7rem;">
+                    {{ lead.score or 0 }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Contacted -->
+    <div class="pipeline-column col-contacted">
+        <div class="pipeline-column-header">
+            <h6>Contacted</h6>
+            <span class="count">{{ leads_by_stage.contacted|length }}</span>
+        </div>
+        {% for lead in leads_by_stage.contacted %}
+        <div class="pipeline-card" onclick="window.location='{{ url_for('lead_detail', lead_id=lead.id) }}'">
+            <div class="lead-name">{{ lead.name or 'Unknown' }}</div>
+            <div class="lead-contact">{{ lead.email or lead.phone or '-' }}</div>
+            <div class="lead-footer">
+                <span class="badge bg-secondary">{{ lead.source or 'Unknown' }}</span>
+                <span class="score-badge {% if lead.score >= 80 %}score-hot{% elif lead.score >= 60 %}score-warm{% else %}score-cool{% endif %}"
+                      style="width: 30px; height: 30px; font-size: 0.7rem;">
+                    {{ lead.score or 0 }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Qualified -->
+    <div class="pipeline-column col-qualified">
+        <div class="pipeline-column-header">
+            <h6>Qualified</h6>
+            <span class="count">{{ leads_by_stage.qualified|length }}</span>
+        </div>
+        {% for lead in leads_by_stage.qualified %}
+        <div class="pipeline-card" onclick="window.location='{{ url_for('lead_detail', lead_id=lead.id) }}'">
+            <div class="lead-name">{{ lead.name or 'Unknown' }}</div>
+            <div class="lead-contact">{{ lead.email or lead.phone or '-' }}</div>
+            <div class="lead-footer">
+                <span class="badge bg-secondary">{{ lead.source or 'Unknown' }}</span>
+                <span class="score-badge {% if lead.score >= 80 %}score-hot{% elif lead.score >= 60 %}score-warm{% else %}score-cool{% endif %}"
+                      style="width: 30px; height: 30px; font-size: 0.7rem;">
+                    {{ lead.score or 0 }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Showing -->
+    <div class="pipeline-column col-showing">
+        <div class="pipeline-column-header">
+            <h6>Showing</h6>
+            <span class="count">{{ leads_by_stage.showing|length }}</span>
+        </div>
+        {% for lead in leads_by_stage.showing %}
+        <div class="pipeline-card" onclick="window.location='{{ url_for('lead_detail', lead_id=lead.id) }}'">
+            <div class="lead-name">{{ lead.name or 'Unknown' }}</div>
+            <div class="lead-contact">{{ lead.email or lead.phone or '-' }}</div>
+            <div class="lead-footer">
+                <span class="badge bg-secondary">{{ lead.source or 'Unknown' }}</span>
+                <span class="score-badge {% if lead.score >= 80 %}score-hot{% elif lead.score >= 60 %}score-warm{% else %}score-cool{% endif %}"
+                      style="width: 30px; height: 30px; font-size: 0.7rem;">
+                    {{ lead.score or 0 }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Offer -->
+    <div class="pipeline-column col-offer">
+        <div class="pipeline-column-header">
+            <h6>Offer</h6>
+            <span class="count">{{ leads_by_stage.offer|length }}</span>
+        </div>
+        {% for lead in leads_by_stage.offer %}
+        <div class="pipeline-card" onclick="window.location='{{ url_for('lead_detail', lead_id=lead.id) }}'">
+            <div class="lead-name">{{ lead.name or 'Unknown' }}</div>
+            <div class="lead-contact">{{ lead.email or lead.phone or '-' }}</div>
+            <div class="lead-footer">
+                <span class="badge bg-secondary">{{ lead.source or 'Unknown' }}</span>
+                <span class="score-badge {% if lead.score >= 80 %}score-hot{% elif lead.score >= 60 %}score-warm{% else %}score-cool{% endif %}"
+                      style="width: 30px; height: 30px; font-size: 0.7rem;">
+                    {{ lead.score or 0 }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pending -->
+    <div class="pipeline-column col-pending">
+        <div class="pipeline-column-header">
+            <h6>Pending</h6>
+            <span class="count">{{ leads_by_stage.pending|length }}</span>
+        </div>
+        {% for lead in leads_by_stage.pending %}
+        <div class="pipeline-card" onclick="window.location='{{ url_for('lead_detail', lead_id=lead.id) }}'">
+            <div class="lead-name">{{ lead.name or 'Unknown' }}</div>
+            <div class="lead-contact">{{ lead.email or lead.phone or '-' }}</div>
+            <div class="lead-footer">
+                <span class="badge bg-secondary">{{ lead.source or 'Unknown' }}</span>
+                <span class="score-badge {% if lead.score >= 80 %}score-hot{% elif lead.score >= 60 %}score-warm{% else %}score-cool{% endif %}"
+                      style="width: 30px; height: 30px; font-size: 0.7rem;">
+                    {{ lead.score or 0 }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Closed -->
+    <div class="pipeline-column col-closed">
+        <div class="pipeline-column-header">
+            <h6>Closed</h6>
+            <span class="count">{{ leads_by_stage.closed|length }}</span>
+        </div>
+        {% for lead in leads_by_stage.closed %}
+        <div class="pipeline-card" onclick="window.location='{{ url_for('lead_detail', lead_id=lead.id) }}'">
+            <div class="lead-name">{{ lead.name or 'Unknown' }}</div>
+            <div class="lead-contact">{{ lead.email or lead.phone or '-' }}</div>
+            <div class="lead-footer">
+                <span class="badge bg-success">Closed</span>
+                <span class="score-badge score-hot" style="width: 30px; height: 30px; font-size: 0.7rem;">
+                    <i class="bi bi-check"></i>
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

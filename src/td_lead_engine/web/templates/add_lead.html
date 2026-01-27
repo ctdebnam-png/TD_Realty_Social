@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Add Lead{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{{ url_for('leads') }}" class="text-muted text-decoration-none mb-2 d-inline-block">
+            <i class="bi bi-arrow-left"></i> Back to Leads
+        </a>
+        <h1 class="mb-0">Add New Lead</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <h5 class="mb-4">Contact Information</h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="name" name="name"
+                                   placeholder="John Smith" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="lead_type" class="form-label">Lead Type *</label>
+                            <select class="form-select" id="lead_type" name="lead_type">
+                                <option value="buyer">Buyer</option>
+                                <option value="seller">Seller</option>
+                                <option value="both">Both</option>
+                                <option value="investor">Investor</option>
+                                <option value="renter">Renter</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   placeholder="john@example.com" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                   placeholder="(555) 123-4567">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="source" class="form-label">Lead Source</label>
+                        <select class="form-select" id="source" name="source">
+                            <option value="manual">Manual Entry</option>
+                            <option value="website">Website</option>
+                            <option value="zillow">Zillow</option>
+                            <option value="realtor_com">Realtor.com</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="google">Google</option>
+                            <option value="referral">Referral</option>
+                            <option value="open_house">Open House</option>
+                            <option value="sign_call">Sign Call</option>
+                            <option value="sphere">Sphere of Influence</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-4">Additional Details</h5>
+
+                    <div class="row mb-3" id="buyer-fields">
+                        <div class="col-md-4">
+                            <label for="budget" class="form-label">Budget</label>
+                            <input type="text" class="form-control" id="budget" name="budget"
+                                   placeholder="$300,000 - $400,000">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="beds" class="form-label">Bedrooms</label>
+                            <select class="form-select" id="beds" name="beds">
+                                <option value="">Any</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                                <option value="4">4+</option>
+                                <option value="5">5+</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="baths" class="form-label">Bathrooms</label>
+                            <select class="form-select" id="baths" name="baths">
+                                <option value="">Any</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                                <option value="4">4+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="preferred_area" class="form-label">Preferred Areas</label>
+                        <input type="text" class="form-control" id="preferred_area" name="preferred_area"
+                               placeholder="Dublin, Powell, Westerville">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4"
+                                  placeholder="Any additional notes about this lead..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('leads') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i> Add Lead
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body">
+                <h6><i class="bi bi-lightbulb me-2"></i>Tips</h6>
+                <ul class="text-muted mb-0" style="font-size: 0.875rem;">
+                    <li class="mb-2">The lead will be automatically scored based on their information</li>
+                    <li class="mb-2">Hot leads (80+) indicate high buying/selling intent</li>
+                    <li class="mb-2">Include as much detail as possible for better scoring</li>
+                    <li>You can always update lead information later</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

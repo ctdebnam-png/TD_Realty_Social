@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Calendar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Calendar</h1>
+    <a href="{{ url_for('showings_list') }}" class="btn btn-primary">
+        <i class="bi bi-calendar-plus"></i> Manage Showings
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <div id="calendar" style="min-height: 500px;">
+                    <!-- Calendar would be rendered here with FullCalendar.js -->
+                    <div class="text-center py-5">
+                        <i class="bi bi-calendar3 text-muted" style="font-size: 4rem;"></i>
+                        <p class="text-muted mt-3">Calendar view coming soon</p>
+                        <p class="text-muted">View your showings in the list below</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="mb-0">Upcoming Showings</h6>
+            </div>
+            <div class="card-body">
+                {% for showing in upcoming %}
+                <div class="d-flex align-items-start mb-3 pb-3 border-bottom">
+                    <div class="me-3">
+                        <div class="bg-primary text-white rounded p-2 text-center" style="min-width: 50px;">
+                            <div class="fw-bold">{{ showing.confirmed_date.strftime('%d') if showing.confirmed_date else '--' }}</div>
+                            <div style="font-size: 0.7rem;">{{ showing.confirmed_date.strftime('%b') if showing.confirmed_date else '' }}</div>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">{{ showing.property_address[:30] }}{% if showing.property_address|length > 30 %}...{% endif %}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            {{ showing.confirmed_time.strftime('%I:%M %p') if showing.confirmed_time else 'TBD' }} - {{ showing.buyer_name }}
+                        </div>
+                        <span class="badge bg-{{ 'success' if showing.status.value == 'confirmed' else 'warning' }} mt-1" style="font-size: 0.65rem;">
+                            {{ showing.status.value|title }}
+                        </span>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">No upcoming showings</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body">
+                <h6 class="mb-3">Quick Stats</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">This Week</span>
+                    <span class="fw-semibold">{{ upcoming|selectattr('confirmed_date')|list|length }} showings</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Pending Approval</span>
+                    <span class="fw-semibold">-</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Completed This Month</span>
+                    <span class="fw-semibold">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

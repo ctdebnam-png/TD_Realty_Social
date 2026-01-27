@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <div>
+        <a href="{{ url_for('add_lead') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Add Lead
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-value">{{ stats.total_leads }}</div>
+                    <div class="stat-label">Total Leads</div>
+                </div>
+                <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-value">{{ stats.hot_leads }}</div>
+                    <div class="stat-label">Hot Leads (80+)</div>
+                </div>
+                <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">
+                    <i class="bi bi-fire"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-value">{{ stats.new_this_week }}</div>
+                    <div class="stat-label">New This Week</div>
+                </div>
+                <div class="stat-icon" style="background: #d1fae5; color: #16a34a;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-value">{{ stats.active_transactions }}</div>
+                    <div class="stat-label">Active Transactions</div>
+                </div>
+                <div class="stat-icon" style="background: #fef3c7; color: #d97706;">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Leads -->
+    <div class="col-md-8">
+        <div class="table-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Recent Leads</span>
+                <a href="{{ url_for('leads') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Score</th>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Source</th>
+                        <th>Stage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in recent_leads %}
+                    <tr style="cursor: pointer;" onclick="window.location='{{ url_for('lead_detail', lead_id=lead.id) }}'">
+                        <td>
+                            <span class="score-badge {% if lead.score >= 80 %}score-hot{% elif lead.score >= 60 %}score-warm{% elif lead.score >= 40 %}score-cool{% else %}score-cold{% endif %}">
+                                {{ lead.score or 0 }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ lead.name or 'Unknown' }}</strong>
+                            <div class="text-muted" style="font-size: 0.75rem;">{{ lead.lead_type or 'Buyer' }}</div>
+                        </td>
+                        <td>
+                            <div>{{ lead.email or '-' }}</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">{{ lead.phone or '-' }}</div>
+                        </td>
+                        <td>{{ lead.source or 'Unknown' }}</td>
+                        <td>
+                            <span class="stage-badge stage-{{ lead.stage or 'new' }}">
+                                {{ (lead.stage or 'new')|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            No leads yet. <a href="{{ url_for('add_lead') }}">Add your first lead</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Today's Showings -->
+        <div class="table-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-calendar-check me-2"></i>Today's Showings</span>
+                <a href="{{ url_for('calendar') }}" class="btn btn-sm btn-outline-primary">Calendar</a>
+            </div>
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Property</th>
+                        <th>Client</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for showing in today_showings %}
+                    <tr>
+                        <td>{{ showing.confirmed_time.strftime('%I:%M %p') if showing.confirmed_time else 'TBD' }}</td>
+                        <td>{{ showing.property_address }}</td>
+                        <td>{{ showing.buyer_name }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if showing.status.value == 'confirmed' else 'warning' }}">
+                                {{ showing.status.value|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            No showings scheduled for today
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <!-- Quick Actions -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Quick Actions</h6>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('add_lead') }}" class="quick-action">
+                        <i class="bi bi-person-plus"></i> Add New Lead
+                    </a>
+                    <a href="{{ url_for('showings_list') }}" class="quick-action">
+                        <i class="bi bi-calendar-plus"></i> Schedule Showing
+                    </a>
+                    <a href="{{ url_for('reviews_list') }}" class="quick-action">
+                        <i class="bi bi-star"></i> Request Review
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Showings -->
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Upcoming Showings</h6>
+                {% for showing in upcoming_showings %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        <div class="bg-light rounded p-2 text-center" style="min-width: 50px;">
+                            <div class="fw-bold">{{ showing.confirmed_date.strftime('%d') if showing.confirmed_date else '--' }}</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">{{ showing.confirmed_date.strftime('%b') if showing.confirmed_date else '--' }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="fw-semibold">{{ showing.property_address[:25] }}{% if showing.property_address|length > 25 %}...{% endif %}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ showing.buyer_name }}</div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">No upcoming showings</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

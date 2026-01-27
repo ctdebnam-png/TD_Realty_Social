@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Transactions</h1>
+    <button class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> New Transaction
+    </button>
+</div>
+
+<!-- Summary Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.total_transactions or 0 }}</div>
+            <div class="stat-label">YTD Transactions</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">${{ '{:,.0f}'.format(summary.total_volume or 0) }}</div>
+            <div class="stat-label">YTD Volume</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">${{ '{:,.0f}'.format(summary.total_commission or 0) }}</div>
+            <div class="stat-label">YTD Commission</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.active_count or 0 }}</div>
+            <div class="stat-label">Active Transactions</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <select class="form-select" name="status">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="active">Active</option>
+                    <option value="under_contract">Under Contract</option>
+                    <option value="closed">Closed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Transactions Table -->
+<div class="table-card">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>Property</th>
+                <th>Client</th>
+                <th>Side</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Close Date</th>
+                <th>Commission</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for txn in transactions %}
+            <tr style="cursor: pointer;" onclick="window.location='{{ url_for('transaction_detail', txn_id=txn.id) }}'">
+                <td>
+                    <strong>{{ txn.property_address }}</strong>
+                    <div class="text-muted" style="font-size: 0.75rem;">{{ txn.property_city }}</div>
+                </td>
+                <td>{{ txn.client_name }}</td>
+                <td>
+                    <span class="badge bg-{{ 'primary' if txn.side.value == 'buyer' else 'success' }}">
+                        {{ txn.side.value|title }}
+                    </span>
+                </td>
+                <td>${{ '{:,.0f}'.format(txn.sale_price or txn.list_price or 0) }}</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if txn.status.value == 'closed' else 'warning' if txn.status.value == 'pending' else 'info' }}">
+                        {{ txn.status.value|title|replace('_', ' ') }}
+                    </span>
+                </td>
+                <td>{{ txn.closing_date.strftime('%b %d, %Y') if txn.closing_date else '-' }}</td>
+                <td>${{ '{:,.0f}'.format(txn.commission_amount or 0) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2 mb-0">No transactions yet</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
