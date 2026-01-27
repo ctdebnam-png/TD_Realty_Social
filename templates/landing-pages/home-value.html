@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Your Columbus Home Worth? | Free Home Value Report</title>
+    <meta name="description" content="Get a free, instant home value estimate for your Columbus, Ohio property. Find out what your home is worth in today's market.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="What's Your Columbus Home Worth?">
+    <meta property="og:description" content="Get a free, instant home value estimate for your Columbus area property.">
+    <meta property="og:type" content="website">
+
+    <!-- Favicon (replace with your own) -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo span {
+            color: #22c55e;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 60px 0 80px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            color: #22c55e;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .form-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .form-card .subtitle {
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #9ca3af;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .privacy-note {
+            font-size: 12px;
+            color: #9ca3af;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        /* Trust Badges */
+        .trust-section {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .trust-section h3 {
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .trust-badge svg {
+            width: 24px;
+            height: 24px;
+            fill: #22c55e;
+        }
+
+        /* Features */
+        .features {
+            padding: 60px 0;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .feature-icon svg {
+            width: 30px;
+            height: 30px;
+            fill: #22c55e;
+        }
+
+        .feature h3 {
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+        }
+
+        .feature p {
+            color: #94a3b8;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 60px 0;
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card p {
+            color: white;
+            font-size: 1.125rem;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .author-info span {
+            display: block;
+        }
+
+        .author-name {
+            color: white;
+            font-weight: 600;
+        }
+
+        .author-location {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        footer p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        footer a {
+            color: #94a3b8;
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-message svg {
+            width: 64px;
+            height: 64px;
+            fill: #22c55e;
+            margin-bottom: 20px;
+        }
+
+        .success-message h2 {
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .success-message p {
+            color: #64748b;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .form-card {
+                padding: 24px;
+                margin: 0 10px;
+            }
+
+            .trust-badges {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">TD<span>Realty</span></div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>What's Your <span>Columbus Home</span> Worth?</h1>
+                <p>Get a free, accurate home value estimate in minutes. No obligation, no pressure.</p>
+
+                <div class="form-card">
+                    <div id="form-content">
+                        <h2>Get Your Free Home Value Report</h2>
+                        <p class="subtitle">Enter your property address to get started</p>
+
+                        <form id="home-value-form" action="YOUR_WEBHOOK_URL" method="POST">
+                            <div class="form-group">
+                                <label for="address">Property Address</label>
+                                <input type="text" id="address" name="address" placeholder="123 Main St, Columbus, OH" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <input type="text" id="name" name="name" placeholder="John Smith" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" placeholder="(614) 555-0123" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="timeline">Selling Timeline</label>
+                                <select id="timeline" name="timeline">
+                                    <option value="">When are you thinking of selling?</option>
+                                    <option value="asap">As soon as possible</option>
+                                    <option value="1-3months">1-3 months</option>
+                                    <option value="3-6months">3-6 months</option>
+                                    <option value="6-12months">6-12 months</option>
+                                    <option value="justcurious">Just curious</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="submit-btn">Get My Free Home Value</button>
+
+                            <p class="privacy-note">Your information is secure and will never be shared or sold.</p>
+                        </form>
+                    </div>
+
+                    <div class="success-message" id="success-message">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        <h2>Thank You!</h2>
+                        <p>Your home value report is being prepared. We'll be in touch within 24 hours with your personalized analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="trust-section">
+            <div class="container">
+                <h3>Trusted by Columbus homeowners</h3>
+                <div class="trust-badges">
+                    <div class="trust-badge">
+                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                        <span>100% Free</span>
+                    </div>
+                    <div class="trust-badge">
+                        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
+                        <span>Local Expert</span>
+                    </div>
+                    <div class="trust-badge">
+                        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        <span>5-Star Rated</span>
+                    </div>
+                    <div class="trust-badge">
+                        <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                        <span>Secure & Private</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <div class="features-grid">
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                        </div>
+                        <h3>Accurate Valuations</h3>
+                        <p>Our reports use local MLS data, recent sales, and market trends for accurate home values.</p>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                        </div>
+                        <h3>Fast Results</h3>
+                        <p>Get your personalized home value report delivered to your inbox within 24 hours.</p>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        </div>
+                        <h3>No Obligation</h3>
+                        <p>Receive your report with zero pressure. We're here when you're ready to sell.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="container">
+                <div class="testimonial-card">
+                    <p>"The home value report was incredibly detailed. It helped us understand exactly what our Powell home was worth and gave us confidence when pricing it for sale."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MS</div>
+                        <div class="author-info">
+                            <span class="author-name">Mike S.</span>
+                            <span class="author-location">Powell, OH</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 TD Realty Ohio. All rights reserved. | <a href="/privacy">Privacy Policy</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Form submission handling
+        document.getElementById('home-value-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Add metadata
+            data.source = 'home-value-landing';
+            data.timestamp = new Date().toISOString();
+            data.page_url = window.location.href;
+
+            try {
+                // Send to your webhook endpoint
+                // Replace YOUR_WEBHOOK_URL with your actual endpoint
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                // Show success message
+                document.getElementById('form-content').style.display = 'none';
+                document.getElementById('success-message').style.display = 'block';
+
+                // Track conversion (if using analytics)
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'generate_lead', {
+                        'event_category': 'form',
+                        'event_label': 'home_value'
+                    });
+                }
+
+                if (typeof fbq !== 'undefined') {
+                    fbq('track', 'Lead');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('There was an error submitting the form. Please try again.');
+            }
+        });
+
+        // Phone number formatting
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 6) {
+                value = '(' + value.substring(0, 3) + ') ' + value.substring(3, 6) + '-' + value.substring(6, 10);
+            } else if (value.length >= 3) {
+                value = '(' + value.substring(0, 3) + ') ' + value.substring(3);
+            }
+            e.target.value = value;
+        });
+    </script>
+
+    <!-- Add your analytics tracking codes here -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'YOUR_GA_ID');
+    </script>
+    -->
+
+    <!--
+    <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', 'YOUR_PIXEL_ID');
+        fbq('track', 'PageView');
+    </script>
+    -->
+</body>
+</html>

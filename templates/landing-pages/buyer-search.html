@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Dream Home in Columbus | TD Realty</title>
+    <meta name="description" content="Search homes for sale in Columbus, Ohio. Get exclusive listings, new listing alerts, and expert guidance from TD Realty.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Find Your Dream Home in Columbus">
+    <meta property="og:description" content="Search the latest Columbus area homes for sale. Get personalized recommendations and expert guidance.">
+    <meta property="og:type" content="website">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Hero with background */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 58, 95, 0.85) 100%),
+                        url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920') center/cover;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo span {
+            color: #3b82f6;
+        }
+
+        .header-cta {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid white;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .header-cta:hover {
+            background: white;
+            color: #0f172a;
+        }
+
+        /* Hero Content */
+        .hero-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 40px 0;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-text h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero-text h1 span {
+            color: #3b82f6;
+        }
+
+        .hero-text p {
+            font-size: 1.25rem;
+            color: #cbd5e1;
+            margin-bottom: 30px;
+        }
+
+        .hero-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .hero-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        }
+
+        .hero-feature svg {
+            width: 20px;
+            height: 20px;
+            fill: #22c55e;
+        }
+
+        /* Search Form Card */
+        .search-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .search-card .subtitle {
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .privacy-note {
+            font-size: 12px;
+            color: #9ca3af;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        /* Areas Section */
+        .areas {
+            padding: 80px 0;
+            background: #f8fafc;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .section-title p {
+            color: #64748b;
+            font-size: 1.125rem;
+        }
+
+        .areas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .area-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .area-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .area-image {
+            height: 160px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .area-image svg {
+            width: 48px;
+            height: 48px;
+            fill: white;
+        }
+
+        .area-content {
+            padding: 20px;
+        }
+
+        .area-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+
+        .area-content p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .area-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        /* Why Choose Us */
+        .why-us {
+            padding: 80px 0;
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+        }
+
+        .why-item {
+            text-align: center;
+        }
+
+        .why-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .why-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: #3b82f6;
+        }
+
+        .why-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+        }
+
+        .why-item p {
+            color: #64748b;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .cta p {
+            color: #94a3b8;
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            background: #0f172a;
+            text-align: center;
+        }
+
+        footer p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        footer a {
+            color: #94a3b8;
+        }
+
+        /* Success Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal-content svg {
+            width: 64px;
+            height: 64px;
+            fill: #22c55e;
+            margin-bottom: 20px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 12px;
+        }
+
+        .modal-content p {
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        .modal-close {
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .hero-text {
+                text-align: center;
+            }
+
+            .hero-features {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .search-card {
+                padding: 24px;
+            }
+
+            .header-cta {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <header>
+            <div class="container">
+                <div class="header-inner">
+                    <div class="logo">TD<span>Realty</span></div>
+                    <a href="#search" class="header-cta">Start Your Search</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="hero-content">
+            <div class="container">
+                <div class="hero-grid">
+                    <div class="hero-text">
+                        <h1>Find Your Perfect <span>Columbus Home</span></h1>
+                        <p>Get exclusive access to new listings, personalized recommendations, and expert guidance throughout your home buying journey.</p>
+
+                        <div class="hero-features">
+                            <div class="hero-feature">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                <span>New Listing Alerts</span>
+                            </div>
+                            <div class="hero-feature">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                <span>Expert Guidance</span>
+                            </div>
+                            <div class="hero-feature">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                <span>No Pressure</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="search-card" id="search">
+                        <h2>Start Your Home Search</h2>
+                        <p class="subtitle">Tell us what you're looking for</p>
+
+                        <form id="buyer-form" action="YOUR_WEBHOOK_URL" method="POST">
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <input type="text" id="name" name="name" placeholder="John Smith" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" placeholder="(614) 555-0123" required>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="min_price">Min Price</label>
+                                    <select id="min_price" name="min_price">
+                                        <option value="">No Min</option>
+                                        <option value="100000">$100,000</option>
+                                        <option value="200000">$200,000</option>
+                                        <option value="300000">$300,000</option>
+                                        <option value="400000">$400,000</option>
+                                        <option value="500000">$500,000</option>
+                                        <option value="750000">$750,000</option>
+                                        <option value="1000000">$1,000,000</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="max_price">Max Price</label>
+                                    <select id="max_price" name="max_price">
+                                        <option value="">No Max</option>
+                                        <option value="200000">$200,000</option>
+                                        <option value="300000">$300,000</option>
+                                        <option value="400000">$400,000</option>
+                                        <option value="500000">$500,000</option>
+                                        <option value="750000">$750,000</option>
+                                        <option value="1000000">$1,000,000</option>
+                                        <option value="1500000">$1,500,000+</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="bedrooms">Bedrooms</label>
+                                    <select id="bedrooms" name="bedrooms">
+                                        <option value="">Any</option>
+                                        <option value="1">1+</option>
+                                        <option value="2">2+</option>
+                                        <option value="3">3+</option>
+                                        <option value="4">4+</option>
+                                        <option value="5">5+</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bathrooms">Bathrooms</label>
+                                    <select id="bathrooms" name="bathrooms">
+                                        <option value="">Any</option>
+                                        <option value="1">1+</option>
+                                        <option value="2">2+</option>
+                                        <option value="3">3+</option>
+                                        <option value="4">4+</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="areas">Preferred Areas</label>
+                                <select id="areas" name="areas">
+                                    <option value="">All Columbus Area</option>
+                                    <option value="dublin">Dublin</option>
+                                    <option value="powell">Powell</option>
+                                    <option value="westerville">Westerville</option>
+                                    <option value="new-albany">New Albany</option>
+                                    <option value="upper-arlington">Upper Arlington</option>
+                                    <option value="grandview">Grandview Heights</option>
+                                    <option value="german-village">German Village</option>
+                                    <option value="short-north">Short North</option>
+                                    <option value="hilliard">Hilliard</option>
+                                    <option value="grove-city">Grove City</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="timeline">Purchase Timeline</label>
+                                <select id="timeline" name="timeline">
+                                    <option value="">When do you want to buy?</option>
+                                    <option value="asap">As soon as possible</option>
+                                    <option value="1-3months">1-3 months</option>
+                                    <option value="3-6months">3-6 months</option>
+                                    <option value="6-12months">6-12 months</option>
+                                    <option value="justlooking">Just looking</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="preapproved">Are you pre-approved for a mortgage?</label>
+                                <select id="preapproved" name="preapproved">
+                                    <option value="">Select...</option>
+                                    <option value="yes">Yes, I'm pre-approved</option>
+                                    <option value="inprocess">Working on it</option>
+                                    <option value="no">Not yet</option>
+                                    <option value="cash">Cash buyer</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="submit-btn">Start My Home Search</button>
+
+                            <p class="privacy-note">Your information is secure. We'll only contact you about properties matching your criteria.</p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="areas">
+        <div class="container">
+            <div class="section-title">
+                <h2>Popular Columbus Areas</h2>
+                <p>Explore homes in the most sought-after neighborhoods</p>
+            </div>
+
+            <div class="areas-grid">
+                <div class="area-card">
+                    <div class="area-image">
+                        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    </div>
+                    <div class="area-content">
+                        <h3>Dublin</h3>
+                        <p>Top-rated schools, parks, and family-friendly communities</p>
+                        <div class="area-stats">
+                            <span>Avg $450K</span>
+                            <span>|</span>
+                            <span>150+ listings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="area-card">
+                    <div class="area-image">
+                        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    </div>
+                    <div class="area-content">
+                        <h3>Powell</h3>
+                        <p>Luxury homes, excellent schools, and vibrant downtown</p>
+                        <div class="area-stats">
+                            <span>Avg $550K</span>
+                            <span>|</span>
+                            <span>80+ listings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="area-card">
+                    <div class="area-image">
+                        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    </div>
+                    <div class="area-content">
+                        <h3>Westerville</h3>
+                        <p>Uptown charm, great parks, and strong community</p>
+                        <div class="area-stats">
+                            <span>Avg $350K</span>
+                            <span>|</span>
+                            <span>120+ listings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="area-card">
+                    <div class="area-image">
+                        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    </div>
+                    <div class="area-content">
+                        <h3>German Village</h3>
+                        <p>Historic brick homes, walkable streets, urban living</p>
+                        <div class="area-stats">
+                            <span>Avg $500K</span>
+                            <span>|</span>
+                            <span>40+ listings</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="why-us">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Work With Us?</h2>
+                <p>Your home buying journey, simplified</p>
+            </div>
+
+            <div class="why-grid">
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                    </div>
+                    <h3>Local Expertise</h3>
+                    <p>Deep knowledge of Columbus neighborhoods, schools, and market trends to help you find the perfect fit.</p>
+                </div>
+
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    </div>
+                    <h3>First Access</h3>
+                    <p>Get notified about new listings before they hit the public market. Never miss your dream home.</p>
+                </div>
+
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    </div>
+                    <h3>Personalized Service</h3>
+                    <p>Work directly with an experienced agent who understands your needs and timeline.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Find Your Home?</h2>
+            <p>Start your search today and get personalized recommendations based on your criteria.</p>
+            <a href="#search" class="cta-btn">Get Started Now</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 TD Realty Ohio. All rights reserved. | <a href="/privacy">Privacy Policy</a></p>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div class="modal" id="success-modal">
+        <div class="modal-content">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            <h2>You're All Set!</h2>
+            <p>We'll start searching for homes matching your criteria and send you personalized recommendations.</p>
+            <button class="modal-close" onclick="document.getElementById('success-modal').classList.remove('active')">Got It</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('buyer-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Add metadata
+            data.source = 'buyer-search-landing';
+            data.timestamp = new Date().toISOString();
+            data.page_url = window.location.href;
+            data.lead_type = 'buyer';
+
+            // Build search criteria message
+            let criteria = [];
+            if (data.min_price || data.max_price) {
+                criteria.push(`Price: $${data.min_price || '0'} - $${data.max_price || 'Any'}`);
+            }
+            if (data.bedrooms) criteria.push(`${data.bedrooms}+ beds`);
+            if (data.bathrooms) criteria.push(`${data.bathrooms}+ baths`);
+            if (data.areas) criteria.push(`Area: ${data.areas}`);
+            if (data.timeline) criteria.push(`Timeline: ${data.timeline}`);
+            if (data.preapproved) criteria.push(`Pre-approved: ${data.preapproved}`);
+
+            data.message = `Buyer looking for: ${criteria.join(', ')}`;
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                // Show success modal
+                document.getElementById('success-modal').classList.add('active');
+
+                // Track conversion
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'generate_lead', {
+                        'event_category': 'form',
+                        'event_label': 'buyer_search'
+                    });
+                }
+
+                if (typeof fbq !== 'undefined') {
+                    fbq('track', 'Lead');
+                }
+
+                // Reset form
+                form.reset();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('There was an error. Please try again.');
+            }
+        });
+
+        // Phone formatting
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 6) {
+                value = '(' + value.substring(0, 3) + ') ' + value.substring(3, 6) + '-' + value.substring(6, 10);
+            } else if (value.length >= 3) {
+                value = '(' + value.substring(0, 3) + ') ' + value.substring(3);
+            }
+            e.target.value = value;
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

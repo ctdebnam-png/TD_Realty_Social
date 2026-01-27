@@ -1,0 +1,158 @@
+# TD Lead Engine - Docker Compose Configuration
+# Supports multiple deployment profiles
+
+version: '3.8'
+
+services:
+  # Main Lead Engine API and Dashboard
+  lead-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: td-lead-engine
+    ports:
+      - "${PORT:-5000}:5000"
+    volumes:
+      - lead-data:/app/data
+      - lead-logs:/app/logs
+      - engine-config:/home/appuser/.td-lead-engine
+    environment:
+      - TD_ENGINE_ENV=${TD_ENGINE_ENV:-production}
+      - TD_ENGINE_SECRET_KEY=${TD_ENGINE_SECRET_KEY:-change-me-in-production}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
+      - TWILIO_FROM_NUMBER=${TWILIO_FROM_NUMBER:-}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - HUBSPOT_API_KEY=${HUBSPOT_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - lead-network
+
+  # Background scheduler for automated tasks
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: td-scheduler
+    command: ["python", "-m", "td_lead_engine.automation.scheduler", "--daemon"]
+    volumes:
+      - lead-data:/app/data
+      - engine-config:/home/appuser/.td-lead-engine
+    environment:
+      - TD_ENGINE_ENV=${TD_ENGINE_ENV:-production}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
+      - TWILIO_FROM_NUMBER=${TWILIO_FROM_NUMBER:-}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+    restart: unless-stopped
+    depends_on:
+      lead-engine:
+        condition: service_healthy
+    networks:
+      - lead-network
+
+  # Webhook receiver for inbound integrations
+  webhook-receiver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: td-webhooks
+    command: ["python", "-m", "td_lead_engine.automation.webhook_server"]
+    ports:
+      - "${WEBHOOK_PORT:-5001}:5001"
+    volumes:
+      - lead-data:/app/data
+      - engine-config:/home/appuser/.td-lead-engine
+    environment:
+      - TD_ENGINE_ENV=${TD_ENGINE_ENV:-production}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-}
+    restart: unless-stopped
+    depends_on:
+      lead-engine:
+        condition: service_healthy
+    networks:
+      - lead-network
+
+  # Redis for caching and real-time features (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: td-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - lead-network
+    profiles:
+      - full
+      - cache
+
+  # PostgreSQL for production database (optional, replaces SQLite)
+  postgres:
+    image: postgres:15-alpine
+    container_name: td-postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-tdengine}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+      - POSTGRES_DB=${POSTGRES_DB:-leads}
+    restart: unless-stopped
+    networks:
+      - lead-network
+    profiles:
+      - full
+      - postgres
+
+  # Nginx reverse proxy for production (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: td-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro
+      - nginx-logs:/var/log/nginx
+    depends_on:
+      - lead-engine
+    restart: unless-stopped
+    networks:
+      - lead-network
+    profiles:
+      - full
+      - production
+
+volumes:
+  lead-data:
+    name: td-lead-data
+  lead-logs:
+    name: td-lead-logs
+  engine-config:
+    name: td-engine-config
+  redis-data:
+    name: td-redis-data
+  postgres-data:
+    name: td-postgres-data
+  nginx-logs:
+    name: td-nginx-logs
+
+networks:
+  lead-network:
+    name: td-lead-network
+    driver: bridge
