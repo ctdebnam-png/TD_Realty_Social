@@ -1,0 +1,93 @@
+{% extends "client/base.html" %}
+
+{% block title %}Saved Searches{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Saved Searches</h2>
+        <a href="{{ url_for('client.new_saved_search') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> New Search
+        </a>
+    </div>
+
+    {% if searches %}
+    <div class="row g-4">
+        {% for search in searches %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">{{ search.name }}</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-link text-muted p-0" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Edit</a></li>
+                                <li><a class="dropdown-item" href="#">Pause Alerts</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {% for location in search.locations[:3] %}
+                        <span class="search-badge">{{ location }}</span>
+                        {% endfor %}
+                        {% if search.locations|length > 3 %}
+                        <span class="search-badge">+{{ search.locations|length - 3 }} more</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <div class="fw-bold">${{ '{:,.0f}'.format(search.min_price / 1000) }}k</div>
+                            <small class="text-muted">Min</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold">${{ '{:,.0f}'.format(search.max_price / 1000) }}k</div>
+                            <small class="text-muted">Max</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold">{{ search.min_beds }}+</div>
+                            <small class="text-muted">Beds</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-{{ 'success' if search.is_active else 'secondary' }}">
+                                {{ 'Active' if search.is_active else 'Paused' }}
+                            </span>
+                            <span class="badge bg-light text-dark ms-1">
+                                {{ search.alert_frequency|title }} alerts
+                            </span>
+                        </div>
+                        <small class="text-muted">{{ search.match_count or 0 }} matches</small>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 pt-0">
+                    <a href="#" class="btn btn-outline-primary btn-sm w-100">
+                        View {{ search.match_count or 0 }} Matches
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-4">No Saved Searches Yet</h4>
+            <p class="text-muted mb-4">Create a saved search to get notified when new properties match your criteria.</p>
+            <a href="{{ url_for('client.new_saved_search') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-lg me-1"></i> Create Your First Search
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

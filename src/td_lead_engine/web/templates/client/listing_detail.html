@@ -1,0 +1,282 @@
+{% extends "client/base.html" %}
+
+{% block title %}{{ listing.address }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="{{ url_for('client.my_listings') }}" class="text-muted text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i> Back to My Listings
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Property Header -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img src="{{ listing.photo_url or 'https://via.placeholder.com/400x300?text=No+Photo' }}"
+                                 class="img-fluid rounded" alt="Property">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h3 class="mb-1">{{ listing.address }}</h3>
+                                    <p class="text-muted mb-2">{{ listing.city }}, {{ listing.state }} {{ listing.zip }}</p>
+                                </div>
+                                <span class="badge bg-{{ 'success' if listing.status == 'active' else 'warning' }} fs-6">
+                                    {{ listing.status|title }}
+                                </span>
+                            </div>
+                            <div class="h3 mb-3">${{ '{:,.0f}'.format(listing.price or 0) }}</div>
+                            <p class="mb-0">
+                                <span class="me-3"><i class="bi bi-door-open me-1"></i>{{ listing.beds }} beds</span>
+                                <span class="me-3"><i class="bi bi-droplet me-1"></i>{{ listing.baths }} baths</span>
+                                <span><i class="bi bi-arrows-angle-expand me-1"></i>{{ '{:,}'.format(listing.sqft or 0) }} sqft</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="stat-value">{{ listing.days_on_market or 0 }}</div>
+                        <div class="stat-label">Days on Market</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="stat-value">{{ listing.view_count or 0 }}</div>
+                        <div class="stat-label">Total Views</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="stat-value">{{ showings|length }}</div>
+                        <div class="stat-label">Showings</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="stat-value text-success">{{ offers|length }}</div>
+                        <div class="stat-label">Offers</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Offers -->
+            {% if pending_offers %}
+            <div class="card mb-4 border-success">
+                <div class="card-header bg-success bg-opacity-10 border-0 pt-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-success"><i class="bi bi-cash-stack me-2"></i>Pending Offers ({{ pending_offers|length }})</h5>
+                    <a href="{{ url_for('client.listing_offers', listing_id=listing.id) }}" class="btn btn-success btn-sm">
+                        View All Offers
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% for offer in pending_offers[:2] %}
+                    <div class="border rounded p-3 mb-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="h4 text-success mb-0">${{ '{:,.0f}'.format(offer.amount or 0) }}</div>
+                                <small class="text-muted">
+                                    {{ ((offer.amount or 0) / (listing.price or 1) * 100)|int }}% of list price
+                                </small>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="fw-semibold">{{ offer.buyer_name }}</div>
+                                <small class="text-muted">{{ offer.buyer_agent or 'Direct Buyer' }}</small>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <span class="badge bg-warning mb-2">Expires {{ offer.expires_at.strftime('%b %d') if offer.expires_at else 'N/A' }}</span>
+                                <br>
+                                <a href="{{ url_for('client.listing_offers', listing_id=listing.id) }}" class="btn btn-outline-success btn-sm">
+                                    Review
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Upcoming Showings -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Upcoming Showings</h5>
+                    <a href="{{ url_for('client.listing_showings', listing_id=listing.id) }}" class="text-primary text-decoration-none">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_showings %}
+                    {% for showing in upcoming_showings[:5] %}
+                    <div class="d-flex align-items-center py-3 border-bottom">
+                        <div class="me-3">
+                            <div class="bg-primary bg-opacity-10 rounded p-2 text-center" style="min-width: 50px;">
+                                <div class="text-primary small">{{ showing.date.strftime('%b') }}</div>
+                                <div class="h5 mb-0 text-primary">{{ showing.date.strftime('%d') }}</div>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">{{ showing.time }}</div>
+                            <small class="text-muted">{{ showing.buyer_agent or 'Buyer Agent' }}</small>
+                        </div>
+                        <div>
+                            {% if showing.status == 'pending' %}
+                            <form method="POST" action="{{ url_for('client.confirm_listing_showing', listing_id=listing.id, showing_id=showing.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-success btn-sm">Confirm</button>
+                            </form>
+                            <button class="btn btn-outline-danger btn-sm">Decline</button>
+                            {% else %}
+                            <span class="badge bg-success">Confirmed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center py-3 mb-0">No upcoming showings</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Showing Feedback -->
+            <div class="card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0"><i class="bi bi-chat-quote me-2"></i>Showing Feedback</h5>
+                </div>
+                <div class="card-body">
+                    {% if feedback.comments %}
+                    {% for comment in feedback.comments[:5] %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <small class="text-muted">{{ comment.date.strftime('%b %d, %Y') }}</small>
+                            <div class="rating-stars">
+                                {% for i in range(5) %}
+                                <i class="bi bi-star{% if i < comment.rating %}-fill{% endif %}" style="font-size: 0.75rem;"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="mb-0">{{ comment.text }}</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center py-3 mb-0">No feedback yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Feedback Summary -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">Feedback Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="h1 mb-0">{{ feedback.average_rating or '-' }}</div>
+                        <div class="rating-stars mb-1">
+                            {% for i in range(5) %}
+                            <i class="bi bi-star{% if i < (feedback.average_rating or 0)|int %}-fill{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">from {{ feedback.total_reviews or 0 }} showings</small>
+                    </div>
+
+                    {% if feedback.common_positives %}
+                    <h6 class="text-success mb-2"><i class="bi bi-plus-circle me-1"></i>Common Positives</h6>
+                    <ul class="list-unstyled mb-3">
+                        {% for positive in feedback.common_positives %}
+                        <li class="mb-1"><small>{{ positive }}</small></li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    {% if feedback.common_concerns %}
+                    <h6 class="text-warning mb-2"><i class="bi bi-exclamation-circle me-1"></i>Common Concerns</h6>
+                    <ul class="list-unstyled mb-0">
+                        {% for concern in feedback.common_concerns %}
+                        <li class="mb-1"><small>{{ concern }}</small></li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('client.listing_showings', listing_id=listing.id) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-calendar me-2"></i> Manage Showings
+                        </a>
+                        <a href="{{ url_for('client.listing_offers', listing_id=listing.id) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-cash me-2"></i> View Offers
+                        </a>
+                        <a href="{{ url_for('client.documents') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-file-earmark me-2"></i> Documents
+                        </a>
+                        <a href="{{ url_for('client.messages') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-chat me-2"></i> Contact Agent
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Timeline -->
+            <div class="card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline-simple">
+                        <div class="d-flex mb-3">
+                            <div class="me-3">
+                                <i class="bi bi-circle-fill text-primary" style="font-size: 0.5rem;"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted">Today</small>
+                                <p class="mb-0 small">{{ listing.view_count or 0 }} new views</p>
+                            </div>
+                        </div>
+                        {% if upcoming_showings %}
+                        <div class="d-flex mb-3">
+                            <div class="me-3">
+                                <i class="bi bi-circle-fill text-success" style="font-size: 0.5rem;"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted">Upcoming</small>
+                                <p class="mb-0 small">{{ upcoming_showings|length }} showings scheduled</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if pending_offers %}
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <i class="bi bi-circle-fill text-warning" style="font-size: 0.5rem;"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted">Action Required</small>
+                                <p class="mb-0 small">{{ pending_offers|length }} offers pending review</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

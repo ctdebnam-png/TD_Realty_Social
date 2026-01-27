@@ -1,0 +1,159 @@
+{% extends "client/base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">Profile Settings</h2>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Profile Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0"><i class="bi bi-person me-2"></i>Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" name="name"
+                                       value="{{ account.name if account else '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" value="{{ account.email if account else '' }}" disabled>
+                                <div class="form-text">Contact your agent to change your email</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" name="phone"
+                                       value="{{ account.phone if account else '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Account Type</label>
+                                <input type="text" class="form-control" value="{{ account.client_type|title if account else 'Buyer' }}" disabled>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check me-1"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Notification Preferences -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0"><i class="bi bi-bell me-2"></i>Notification Preferences</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="emailAlerts" checked>
+                        <label class="form-check-label" for="emailAlerts">
+                            <strong>Email Alerts</strong>
+                            <p class="text-muted mb-0 small">Receive notifications via email</p>
+                        </label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="smsAlerts" checked>
+                        <label class="form-check-label" for="smsAlerts">
+                            <strong>SMS Alerts</strong>
+                            <p class="text-muted mb-0 small">Receive text message notifications</p>
+                        </label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="newListings" checked>
+                        <label class="form-check-label" for="newListings">
+                            <strong>New Listing Alerts</strong>
+                            <p class="text-muted mb-0 small">Get notified when new properties match your searches</p>
+                        </label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="priceDrops" checked>
+                        <label class="form-check-label" for="priceDrops">
+                            <strong>Price Drop Alerts</strong>
+                            <p class="text-muted mb-0 small">Get notified when saved properties reduce their price</p>
+                        </label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="marketUpdates">
+                        <label class="form-check-label" for="marketUpdates">
+                            <strong>Market Updates</strong>
+                            <p class="text-muted mb-0 small">Receive weekly market reports and insights</p>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="card">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0"><i class="bi bi-lock me-2"></i>Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" placeholder="Enter current password">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-control" placeholder="Enter new password">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" placeholder="Confirm new password">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary">
+                            Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Account Summary -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h6 class="mb-0">Account Summary</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                             style="width: 80px; height: 80px; font-size: 2rem;">
+                            {{ (account.name or 'U')[0]|upper }}
+                        </div>
+                    </div>
+                    <h5 class="mb-1">{{ account.name if account else 'User' }}</h5>
+                    <p class="text-muted mb-3">{{ account.client_type|title if account else 'Buyer' }} Client</p>
+                    <div class="text-muted small">
+                        Member since {{ account.created_at.strftime('%B %Y') if account and account.created_at else 'Recently' }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="card border-danger">
+                <div class="card-header bg-danger bg-opacity-10 border-0 pt-4">
+                    <h6 class="mb-0 text-danger">Danger Zone</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        Permanently delete your account and all associated data.
+                    </p>
+                    <button class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash me-1"></i> Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

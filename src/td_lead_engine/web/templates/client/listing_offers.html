@@ -1,0 +1,231 @@
+{% extends "client/base.html" %}
+
+{% block title %}Offers{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="{{ url_for('client.listing_detail', listing_id=listing_id) }}" class="text-muted text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i> Back to Listing
+        </a>
+    </div>
+
+    <h2 class="mb-4">Offers</h2>
+
+    {% if comparison %}
+    <!-- Offer Comparison -->
+    <div class="card mb-4">
+        <div class="card-header bg-white border-0 pt-4">
+            <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Offer Comparison</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Criteria</th>
+                            {% for offer in comparison.offers %}
+                            <th class="text-center">
+                                Offer {{ loop.index }}
+                                {% if offer.is_best %}
+                                <span class="badge bg-success ms-1">Best</span>
+                                {% endif %}
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Price</strong></td>
+                            {% for offer in comparison.offers %}
+                            <td class="text-center">
+                                <div class="h5 mb-0">${{ '{:,.0f}'.format(offer.amount or 0) }}</div>
+                                <small class="text-{{ 'success' if offer.price_pct >= 100 else 'warning' }}">
+                                    {{ offer.price_pct }}% of list
+                                </small>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Down Payment</strong></td>
+                            {% for offer in comparison.offers %}
+                            <td class="text-center">{{ offer.down_payment_pct or 0 }}%</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Financing</strong></td>
+                            {% for offer in comparison.offers %}
+                            <td class="text-center">{{ offer.financing_type or 'Conventional' }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Contingencies</strong></td>
+                            {% for offer in comparison.offers %}
+                            <td class="text-center">
+                                {% if offer.inspection_contingency %}<span class="badge bg-light text-dark me-1">Inspection</span>{% endif %}
+                                {% if offer.financing_contingency %}<span class="badge bg-light text-dark me-1">Financing</span>{% endif %}
+                                {% if offer.appraisal_contingency %}<span class="badge bg-light text-dark">Appraisal</span>{% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Closing Date</strong></td>
+                            {% for offer in comparison.offers %}
+                            <td class="text-center">{{ offer.closing_date.strftime('%b %d') if offer.closing_date else 'TBD' }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Expires</strong></td>
+                            {% for offer in comparison.offers %}
+                            <td class="text-center">
+                                <span class="badge bg-{{ 'warning' if offer.hours_until_expiry < 24 else 'secondary' }}">
+                                    {{ offer.expires_at.strftime('%b %d, %I:%M %p') if offer.expires_at else 'N/A' }}
+                                </span>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Offers -->
+    <div class="row g-4">
+        {% for offer in offers %}
+        <div class="col-12">
+            <div class="card {% if offer.status == 'pending' %}border-primary{% endif %}">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="h3 mb-1 text-success">${{ '{:,.0f}'.format(offer.amount or 0) }}</div>
+                            <small class="text-muted">
+                                {{ ((offer.amount or 0) / (listing_price or 1) * 100)|int }}% of list price
+                            </small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="fw-semibold">{{ offer.buyer_name }}</div>
+                            <small class="text-muted">{{ offer.buyer_agent or 'Direct Buyer' }}</small>
+                            {% if offer.preapproval_amount %}
+                            <div class="mt-1">
+                                <span class="badge bg-success">Pre-approved ${{ '{:,.0f}'.format(offer.preapproval_amount) }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small">
+                                <div class="mb-1">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    Close: {{ offer.closing_date.strftime('%b %d, %Y') if offer.closing_date else 'TBD' }}
+                                </div>
+                                <div class="mb-1">
+                                    <i class="bi bi-cash-stack me-1"></i>
+                                    {{ offer.financing_type or 'Conventional' }}
+                                </div>
+                                <div>
+                                    <i class="bi bi-percent me-1"></i>
+                                    {{ offer.down_payment_pct or 20 }}% down
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            {% if offer.status == 'pending' %}
+                            <span class="badge bg-warning mb-2 d-block">
+                                Expires {{ offer.expires_at.strftime('%b %d, %I:%M %p') if offer.expires_at else 'N/A' }}
+                            </span>
+                            <div class="btn-group">
+                                <form method="POST" action="{{ url_for('client.respond_to_offer', listing_id=listing_id, offer_id=offer.id) }}">
+                                    <input type="hidden" name="response" value="accept">
+                                    <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                </form>
+                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#counterModal{{ offer.id }}">
+                                    Counter
+                                </button>
+                                <form method="POST" action="{{ url_for('client.respond_to_offer', listing_id=listing_id, offer_id=offer.id) }}">
+                                    <input type="hidden" name="response" value="reject">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Decline</button>
+                                </form>
+                            </div>
+                            {% elif offer.status == 'accepted' %}
+                            <span class="badge bg-success fs-6">Accepted</span>
+                            {% elif offer.status == 'countered' %}
+                            <span class="badge bg-warning fs-6">Countered</span>
+                            {% else %}
+                            <span class="badge bg-secondary fs-6">{{ offer.status|title }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if offer.terms or offer.contingencies %}
+                    <hr class="my-3">
+                    <div class="row">
+                        {% if offer.terms %}
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Terms & Conditions</h6>
+                            <p class="small mb-0">{{ offer.terms }}</p>
+                        </div>
+                        {% endif %}
+                        {% if offer.contingencies %}
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Contingencies</h6>
+                            <div>
+                                {% for contingency in offer.contingencies %}
+                                <span class="badge bg-light text-dark me-1 mb-1">{{ contingency }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Counter Modal -->
+        <div class="modal fade" id="counterModal{{ offer.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Counter Offer</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="POST" action="{{ url_for('client.respond_to_offer', listing_id=listing_id, offer_id=offer.id) }}">
+                        <div class="modal-body">
+                            <input type="hidden" name="response" value="counter">
+                            <div class="mb-3">
+                                <label class="form-label">Counter Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" name="counter_amount"
+                                           value="{{ offer.amount }}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Counter Terms (Optional)</label>
+                                <textarea class="form-control" name="counter_terms" rows="3"
+                                          placeholder="Any additional terms or conditions..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-warning">Send Counter Offer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-cash-stack text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-4">No Offers Yet</h4>
+                    <p class="text-muted mb-0">Offers on your listing will appear here.</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
