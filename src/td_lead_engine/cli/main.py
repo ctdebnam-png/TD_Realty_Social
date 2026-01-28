@@ -41,7 +41,7 @@ def cli():
     Available Sources:
       instagram, facebook, csv, zillow, google_business,
       google_contacts, google_forms, google_ads, linkedin,
-      sales_navigator, nextdoor
+      sales_navigator, nextdoor, website
     """
     pass
 
@@ -52,9 +52,30 @@ def cli():
 
 @cli.command()
 @click.option("--db", "db_path", help="Custom database path")
+def migrate(db_path: Optional[str]):
+    """Run pending database migrations."""
+    from ..storage.migrations import run_migrations
+
+    db = get_db(db_path)
+    count = run_migrations(str(db.db_path))
+    if count:
+        console.print(f"[green]Applied {count} migration(s)[/green]")
+    else:
+        console.print("[dim]No pending migrations[/dim]")
+
+
+@cli.command()
+@click.option("--db", "db_path", help="Custom database path")
 def init(db_path: Optional[str]):
     """Initialize the leads database and show setup wizard."""
     db = get_db(db_path)
+
+    # Run migrations automatically on init
+    try:
+        from ..storage.migrations import run_migrations
+        run_migrations(str(db.db_path))
+    except Exception as e:
+        console.print(f"[yellow]Migration note: {e}[/yellow]")
 
     console.print(Panel.fit(
         f"[green]✓ Database initialized![/green]\n\n"
@@ -883,6 +904,7 @@ def sources():
         ("linkedin", "LinkedIn connections", "socialops import -s linkedin -p ./Connections.csv"),
         ("sales_navigator", "Sales Navigator export", "socialops import -s sales_navigator -p ./leads.csv"),
         ("nextdoor", "Nextdoor messages", "socialops import -s nextdoor -p ./messages.json"),
+        ("website", "Website lead events", "socialops import -s website -p ./events.jsonl"),
     ]
 
     for source, desc, example in sources_info:
