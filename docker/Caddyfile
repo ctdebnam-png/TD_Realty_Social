@@ -1,0 +1,19 @@
+{
+    email travis@tdrealtyohio.com
+}
+
+leads.tdrealtyohio.com {
+    # API routes
+    handle /v1/* {
+        reverse_proxy api:8000
+    }
+
+    handle /health {
+        reverse_proxy api:8000
+    }
+
+    # Dashboard
+    handle {
+        reverse_proxy dashboard:3000
+    }
+}

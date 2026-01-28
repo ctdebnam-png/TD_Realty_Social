@@ -181,6 +181,41 @@ INTENT_SIGNALS: List[IntentSignal] = [
 ]
 
 
+# === WEBSITE EVENT SCORES ===
+# Used by the website_api ingestion pipeline to score website interactions.
+# These are additive to the phrase-based scoring above.
+
+WEBSITE_EVENT_SCORES = {
+    # High intent events
+    "contact_submit": 75,
+    "home_value_request": 80,
+    "schedule_showing": 90,
+    "schedule_consultation": 85,
+    # Medium intent events
+    "calculator_submit": 40,
+    "property_inquiry": 50,
+    "saved_search": 35,
+    # Low intent events
+    "newsletter_signup": 15,
+    "blog_subscription": 10,
+    "page_view": 0,
+}
+
+CALCULATOR_MODIFIERS = {
+    "commission_savings": {"threshold": 5000, "bonus": 20},
+    "home_value": {"threshold": 200000, "bonus": 15},
+    "mortgage": {"threshold": 250000, "bonus": 10},
+}
+
+REPEAT_ENGAGEMENT_BONUS = {
+    "events_in_7_days": {
+        2: 10,
+        3: 20,
+        5: 35,
+    }
+}
+
+
 def get_signals_by_category(category: SignalCategory) -> List[IntentSignal]:
     """Get all signals for a specific category."""
     return [s for s in INTENT_SIGNALS if s.category == category]

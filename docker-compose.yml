@@ -4,6 +4,39 @@
 version: '3.8'
 
 services:
+  # Website Lead Ingestion API (FastAPI)
+  website-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: td-website-api
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - lead-data:/data
+      - engine-config:/home/appuser/.td-lead-engine
+    environment:
+      - TD_API_SECRET=${TD_API_SECRET:-change-me-in-production}
+      - TD_DATABASE_PATH=/data/leads.db
+      - TD_API_HOST=0.0.0.0
+      - TD_API_PORT=8000
+      - TD_NOTIFICATIONS_ENABLED=${TD_NOTIFICATIONS_ENABLED:-false}
+      - TD_NOTIFICATION_METHOD=${TD_NOTIFICATION_METHOD:-smtp}
+      - TD_SMTP_HOST=${TD_SMTP_HOST:-smtp.gmail.com}
+      - TD_SMTP_USER=${TD_SMTP_USER:-}
+      - TD_SMTP_PASSWORD=${TD_SMTP_PASSWORD:-}
+      - TD_FROM_EMAIL=${TD_FROM_EMAIL:-}
+      - TD_NOTIFY_EMAIL=${TD_NOTIFY_EMAIL:-}
+      - TD_WEBHOOK_URL=${TD_WEBHOOK_URL:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - lead-network
+
   # Main Lead Engine API and Dashboard
   lead-engine:
     build:
