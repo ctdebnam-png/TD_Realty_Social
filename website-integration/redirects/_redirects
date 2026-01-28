@@ -1,0 +1,24 @@
+# Vanity domain redirect rules for tdrealtyohio.com
+# Place in repo root or _redirects file.
+# UTM parameters are added for attribution tracking.
+
+# === SELLER-FOCUSED DOMAINS ===
+https://sell1percentohio.com/* https://tdrealtyohio.com/sell-your-home?utm_source=vanity&utm_medium=domain&utm_campaign=sell1percent&:splat 301!
+https://www.sell1percentohio.com/* https://tdrealtyohio.com/sell-your-home?utm_source=vanity&utm_medium=domain&utm_campaign=sell1percent&:splat 301!
+
+https://1percentlistingohio.com/* https://tdrealtyohio.com/sell-your-home?utm_source=vanity&utm_medium=domain&utm_campaign=1percentlisting&:splat 301!
+https://www.1percentlistingohio.com/* https://tdrealtyohio.com/sell-your-home?utm_source=vanity&utm_medium=domain&utm_campaign=1percentlisting&:splat 301!
+
+https://sellmyhousecolumbus.com/* https://tdrealtyohio.com/sell-your-home?utm_source=vanity&utm_medium=domain&utm_campaign=sellcolumbus&:splat 301!
+https://www.sellmyhousecolumbus.com/* https://tdrealtyohio.com/sell-your-home?utm_source=vanity&utm_medium=domain&utm_campaign=sellcolumbus&:splat 301!
+
+# === AREA-FOCUSED DOMAINS ===
+https://powellohiorealestate.com/* https://tdrealtyohio.com/areas/powell?utm_source=vanity&utm_medium=domain&utm_campaign=powell&:splat 301!
+https://www.powellohiorealestate.com/* https://tdrealtyohio.com/areas/powell?utm_source=vanity&utm_medium=domain&utm_campaign=powell&:splat 301!
+
+https://dublinohiohomes.com/* https://tdrealtyohio.com/areas/dublin?utm_source=vanity&utm_medium=domain&utm_campaign=dublin&:splat 301!
+https://www.dublinohiohomes.com/* https://tdrealtyohio.com/areas/dublin?utm_source=vanity&utm_medium=domain&utm_campaign=dublin&:splat 301!
+
+# === BUYER-FOCUSED DOMAINS ===
+https://firsttimebuyerohio.com/* https://tdrealtyohio.com/buy?utm_source=vanity&utm_medium=domain&utm_campaign=firsttimebuyer&:splat 301!
+https://www.firsttimebuyerohio.com/* https://tdrealtyohio.com/buy?utm_source=vanity&utm_medium=domain&utm_campaign=firsttimebuyer&:splat 301!
