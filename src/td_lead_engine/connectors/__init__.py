@@ -13,6 +13,7 @@ from .google import (
 )
 from .linkedin import LinkedInConnector, SalesNavigatorConnector
 from .nextdoor import NextdoorConnector
+from .website import WebsiteConnector
 
 # Connector registry for CLI/API
 CONNECTORS = {
@@ -30,6 +31,7 @@ CONNECTORS = {
     "linkedin": LinkedInConnector,
     "sales_navigator": SalesNavigatorConnector,
     "nextdoor": NextdoorConnector,
+    "website": WebsiteConnector,
 }
 
 
@@ -58,6 +60,7 @@ __all__ = [
     "LinkedInConnector",
     "SalesNavigatorConnector",
     "NextdoorConnector",
+    "WebsiteConnector",
     "CONNECTORS",
     "get_connector",
 ]
