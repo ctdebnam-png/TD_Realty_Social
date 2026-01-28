@@ -1,0 +1,10 @@
+name = "td-lead-ingestion"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+ORIGIN_API = "https://leads.tdrealtyohio.com"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "your-kv-namespace-id"

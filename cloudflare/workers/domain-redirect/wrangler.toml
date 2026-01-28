@@ -1,0 +1,8 @@
+name = "td-domain-redirect"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Add routes for each vanity domain
+# [[routes]]
+# pattern = "sell1percentohio.com/*"
+# zone_name = "sell1percentohio.com"
