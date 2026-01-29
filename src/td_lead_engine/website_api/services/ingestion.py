@@ -16,6 +16,8 @@ def get_db_connection() -> sqlite3.Connection:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA foreign_keys=ON")
     return conn
 
 
@@ -109,40 +111,35 @@ def ingest_lead(payload: dict) -> Tuple[dict, bool]:
             ),
         )
 
-        # Record attribution (only if first attribution for this lead)
+        # Record attribution (every touch — supports multi-touch tracking)
         attribution = payload.get("attribution", {})
         if attribution and any(attribution.values()):
-            cursor = conn.execute(
-                "SELECT id FROM lead_attribution WHERE lead_id = ? LIMIT 1",
-                (lead_id,),
+            conn.execute(
+                """INSERT INTO lead_attribution (
+                    lead_id, utm_source, utm_medium, utm_campaign,
+                    utm_content, utm_term, gclid, msclkid, fbclid,
+                    landing_page, referrer, referrer_domain
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    lead_id,
+                    attribution.get("utm_source"),
+                    attribution.get("utm_medium"),
+                    attribution.get("utm_campaign"),
+                    attribution.get("utm_content"),
+                    attribution.get("utm_term"),
+                    attribution.get("gclid"),
+                    attribution.get("msclkid"),
+                    attribution.get("fbclid"),
+                    attribution.get("landing_page"),
+                    attribution.get("referrer"),
+                    attribution.get("referrer_domain"),
+                ),
             )
-            if not cursor.fetchone():
-                conn.execute(
-                    """INSERT INTO lead_attribution (
-                        lead_id, utm_source, utm_medium, utm_campaign,
-                        utm_content, utm_term, gclid, msclkid, fbclid,
-                        landing_page, referrer, referrer_domain
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                    (
-                        lead_id,
-                        attribution.get("utm_source"),
-                        attribution.get("utm_medium"),
-                        attribution.get("utm_campaign"),
-                        attribution.get("utm_content"),
-                        attribution.get("utm_term"),
-                        attribution.get("gclid"),
-                        attribution.get("msclkid"),
-                        attribution.get("fbclid"),
-                        attribution.get("landing_page"),
-                        attribution.get("referrer"),
-                        attribution.get("referrer_domain"),
-                    ),
-                )
 
         # Store message as note if provided
         message = event_data.get("message")
         if message:
-            timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+            timestamp_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
             conn.execute(
                 """UPDATE leads SET notes = CASE
                     WHEN notes IS NULL OR notes = '' THEN ?
@@ -159,7 +156,7 @@ def ingest_lead(payload: dict) -> Tuple[dict, bool]:
 
         return {
             "success": True,
-            "lead_id": payload.get("lead_id"),
+            "lead_id": str(lead_id),
             "is_new": is_new,
             "message": "Lead ingested successfully" if is_new else "Event added to existing lead",
         }, is_new
