@@ -32,16 +32,23 @@ def run_migrations(db_path: str):
         if version not in applied:
             print(f"Applying migration: {version}")
             sql = migration_file.read_text()
-            # Execute each statement separately to handle ALTER TABLE
-            for statement in sql.split(";"):
+            # Strip comment-only lines, then split on semicolons
+            lines = [
+                line for line in sql.splitlines()
+                if line.strip() and not line.strip().startswith("--")
+            ]
+            clean_sql = "\n".join(lines)
+            for statement in clean_sql.split(";"):
                 statement = statement.strip()
-                if statement and not statement.startswith("--"):
-                    try:
-                        conn.execute(statement)
-                    except sqlite3.OperationalError as e:
-                        # Skip "duplicate column" errors from re-running ALTER TABLE
-                        if "duplicate column" not in str(e).lower():
-                            raise
+                if not statement:
+                    continue
+                try:
+                    conn.execute(statement)
+                except sqlite3.OperationalError as e:
+                    err = str(e).lower()
+                    # Skip benign errors from re-running migrations
+                    if "duplicate column" not in err:
+                        raise
             conn.execute(
                 "INSERT INTO schema_migrations (version) VALUES (?)",
                 (version,),
