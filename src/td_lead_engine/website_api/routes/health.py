@@ -15,10 +15,13 @@ async def ready():
     """Readiness check - verifies database is accessible."""
     from ..services.ingestion import get_db_connection
 
+    conn = None
     try:
         conn = get_db_connection()
         conn.execute("SELECT 1")
-        conn.close()
         return {"status": "ready"}
     except Exception as e:
         return {"status": "not_ready", "detail": str(e)}
+    finally:
+        if conn:
+            conn.close()

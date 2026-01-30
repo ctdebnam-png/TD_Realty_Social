@@ -1,14 +1,22 @@
 """Environment-based configuration for the API service."""
 
+import logging
 import os
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class Settings:
     """API configuration loaded from environment variables."""
 
     def __init__(self):
-        self.api_secret = os.getenv("TD_API_SECRET", "dev-secret-change-me")
+        self.api_secret = os.getenv("TD_API_SECRET", "")
+        if not self.api_secret:
+            raise RuntimeError(
+                "TD_API_SECRET environment variable is required. "
+                "Generate one with: openssl rand -hex 32"
+            )
         self.host = os.getenv("TD_API_HOST", "0.0.0.0")
         self.port = int(os.getenv("TD_API_PORT", "8000"))
         self.db_path = os.getenv(
@@ -34,4 +42,21 @@ class Settings:
         self.rate_limit_per_minute = int(os.getenv("TD_RATE_LIMIT", "100"))
 
 
-settings = Settings()
+_settings = None
+
+
+def _get_settings() -> Settings:
+    global _settings
+    if _settings is None:
+        _settings = Settings()
+    return _settings
+
+
+class _SettingsProxy:
+    """Lazy proxy so settings aren't loaded until first access."""
+
+    def __getattr__(self, name):
+        return getattr(_get_settings(), name)
+
+
+settings = _SettingsProxy()
