@@ -1,5 +1,18 @@
-# Vanity domain redirect rules for tdrealtyohio.com
+# Redirect rules for tdrealtyohio.com
 # Place in repo root or _redirects file.
+
+# === CANONICAL URL FIXES ===
+# Remove index.html (Google Search Console: "Page with redirect")
+/index.html / 301
+
+# === WWW TO NON-WWW ===
+https://www.tdrealtyohio.com/* https://tdrealtyohio.com/:splat 301!
+http://www.tdrealtyohio.com/* https://tdrealtyohio.com/:splat 301!
+
+# === HTTP TO HTTPS ===
+http://tdrealtyohio.com/* https://tdrealtyohio.com/:splat 301!
+
+# === VANITY DOMAIN REDIRECTS ===
 # UTM parameters are added for attribution tracking.
 
 # === SELLER-FOCUSED DOMAINS ===
