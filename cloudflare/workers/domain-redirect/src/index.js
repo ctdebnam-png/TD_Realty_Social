@@ -35,6 +35,18 @@ export default {
     const url = new URL(request.url);
     const hostname = url.hostname.replace('www.', '');
 
+    // Redirect www.tdrealtyohio.com to tdrealtyohio.com
+    if (url.hostname.startsWith('www.') && hostname === 'tdrealtyohio.com') {
+      url.hostname = 'tdrealtyohio.com';
+      return Response.redirect(url.toString(), 301);
+    }
+
+    // Redirect /index.html to / for canonical URL
+    if (hostname === 'tdrealtyohio.com' && url.pathname === '/index.html') {
+      url.pathname = '/';
+      return Response.redirect(url.toString(), 301);
+    }
+
     const config = REDIRECT_MAP[hostname];
     if (!config) {
       return new Response('Not found', { status: 404 });
